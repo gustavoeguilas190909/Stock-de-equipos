@@ -1,0 +1,9 @@
+{
+  "name": "entel-price-scraper",
+  "version": "1.0.0",
+  "description": "Scraper de precios Entel con Puppeteer",
+  "main": "scraper.js",
+  "dependencies": {
+    "puppeteer": "^22.0.0"
+  }
+}
