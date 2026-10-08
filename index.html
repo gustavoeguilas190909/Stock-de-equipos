@@ -265,8 +265,63 @@
       reader.readAsText(file);
     }
 
-    function syncEntelPrices() {
-      alert("Precios sincronizados.");
+    async function syncEntelPrices() {
+      const btnSync = document.querySelector('button[onclick="syncEntelPrices()"]');
+      if (btnSync) {
+        btnSync.disabled = true;
+        btnSync.innerHTML = '<span>Sincronizando con Entel...</span>';
+      }
+
+      let actualizados = 0;
+
+      for (let item of inventory) {
+        try {
+          const busqueda = item.sku || item.desc;
+          if (!busqueda) continue;
+
+          const entelUrl = `https://miportal.entel.cl/personas/catalogo/equipos?q=${encodeURIComponent(busqueda)}`;
+          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(entelUrl)}`;
+
+          const response = await fetch(proxyUrl);
+          if (!response.ok) continue;
+
+          const data = await response.json();
+
+          if (data && data.contents) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data.contents, 'text/html');
+
+            const elOferta = doc.querySelector('.price-offer, .precio-oferta, .off-price, [data-price-offer]');
+            const elRegular = doc.querySelector('.price-regular, .precio-lista, .list-price, [data-price-regular]');
+
+            if (elOferta) {
+              const pOferta = parseInt(elOferta.textContent.replace(/\D/g, ''), 10);
+              if (pOferta) {
+                item.priceOffer = pOferta;
+                if (elRegular) {
+                  const pReg = parseInt(elRegular.textContent.replace(/\D/g, ''), 10);
+                  if (pReg) item.priceReg = pReg;
+                }
+                actualizados++;
+              }
+            }
+          }
+        } catch (err) {
+          console.warn(`No se pudo sincronizar ${item.sku || item.desc}`, err);
+        }
+      }
+
+      localStorage.setItem('inv_data', JSON.stringify(inventory));
+      if (typeof renderTable === 'function') {
+        renderTable();
+      }
+
+      if (btnSync) {
+        btnSync.disabled = false;
+        btnSync.innerHTML = '<i data-lucide="refresh-cw"></i><span>Sincronizar Entel.cl</span>';
+      }
+
+      alert(`✓ Proceso automático finalizado. Se actualizaron ${actualizados} productos.`);
     }
   </script>
 </body>
