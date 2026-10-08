@@ -4,13 +4,11 @@ const fs = require('fs');
 async function run() {
   console.log("Iniciando navegador headless para extraer precios de Entel...");
   
-  // Cargar inventario de productos desde el HTML o archivo local
   let htmlData = '';
   if (fs.existsSync('qry_ESIMPD1_stock.html')) {
     htmlData = fs.readFileSync('qry_ESIMPD1_stock.html', 'utf8');
   }
 
-  // Extraer SKUs o Descripciones únicas
   const skus = [];
   const regex = /<td[^>]*>([A-Z0-9_\s-]+)<\/td>/gi;
   let match;
@@ -32,8 +30,6 @@ async function run() {
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
   const resultPrices = {};
-
-  // Muestra de prueba: procesar los primeros 15 productos
   const itemsToProcess = skus.slice(0, 15);
 
   for (const item of itemsToProcess) {
@@ -42,8 +38,8 @@ async function run() {
       console.log(`Consultando: ${item}...`);
       await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
-      // Esperar a que cargue el contenido dinámico
-      await page.waitForTimeout(2000);
+      // Esperar 2 segundos utilizando setTimeout estándar
+      await new Promise(r => setTimeout(r, 2000));
 
       const priceData = await page.evaluate(() => {
         const offerEl = document.querySelector('.price-offer, .precio-oferta, [data-price-offer], .price');
@@ -68,7 +64,6 @@ async function run() {
 
   await browser.close();
 
-  // Guardar resultados en precios.json
   fs.writeFileSync('precios.json', JSON.stringify(resultPrices, null, 2));
   console.log("Archivo precios.json generado con éxito.");
 }
