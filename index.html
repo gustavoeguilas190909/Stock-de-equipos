@@ -4,254 +4,111 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inventario de Productos Portal</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f8fafc;
-      color: #1e293b;
-    }
-    /* Toast floating style */
-    .toast-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 9999;
-      display: flex;
-      flex-col: column;
-      gap: 10px;
-      pointer-events: none;
-    }
-    .toast {
-      pointer-events: auto;
-      background: #0f172a;
-      color: #ffffff;
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes slideIn {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .btn-copy {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-      border-radius: 4px;
-      border: 1px solid #e2e8f0;
-      background-color: #ffffff;
-      color: #64748b;
-      transition: all 0.15s ease;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .btn-copy:hover {
-      background-color: #eff6ff;
-      color: #2563eb;
-      border-color: #bfdbfe;
-    }
-    .btn-copy:active {
-      transform: scale(0.92);
-    }
-    /* Custom scrollbar for clean visual look */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-  </style>
 </head>
-<body class="p-4 md:p-8">
-
-  <div class="max-w-[1400px] mx-auto space-y-6">
-
-    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-      <div class="flex items-center gap-4">
-        <!-- Blue square icon with grid/boxes -->
-        <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
-          <i data-lucide="boxes" class="w-6 h-6"></i>
+<body class="bg-slate-50 min-h-screen p-4 md:p-6 text-slate-800 font-sans">
+  <div class="max-w-7xl mx-auto space-y-6">
+    
+    <!-- ENCABEZADO -->
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="bg-blue-600 p-2.5 rounded-lg text-white">
+          <i data-lucide="box" class="w-6 h-6"></i>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-slate-900 tracking-tight">Control de Información</h1>
-          <p class="text-xs text-slate-500 font-medium mt-0.5">Inventario de productos & Sincronización Entel.cl</p>
+          <h1 class="text-xl font-bold text-slate-900">Control de Información</h1>
+          <p class="text-xs text-slate-500">Inventario de productos & Sincronización Entel.cl</p>
         </div>
       </div>
-
-      <!-- Action Buttons top right -->
-      <div class="flex items-center gap-3">
-        <!-- Orange Button: Sincronizar Entel.cl -->
-        <button id="btnSync" onclick="syncEntelPrices()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-sm shadow-orange-500/20 transition-all active:scale-95">
-          <i data-lucide="refresh-cw" id="syncIcon" class="w-4 h-4"></i>
+      <div class="flex items-center space-x-2">
+        <button onclick="syncEntelPrices()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-1.5 shadow-sm transition-all">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
           <span>Sincronizar Entel.cl</span>
         </button>
-
-        <!-- Light Blue Button: Actualizar Stock (HTML) -->
-        <input type="file" id="htmlFileInput" accept=".html,.htm" class="hidden">
-        <button onclick="document.getElementById('htmlFileInput').click()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all active:scale-95">
-          <i data-lucide="bookmark-plus" class="w-4 h-4 text-blue-600"></i>
+        <label class="bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold px-4 py-2 rounded-lg border border-blue-200 cursor-pointer flex items-center space-x-1.5 transition-all">
+          <i data-lucide="file-plus" class="w-4 h-4"></i>
           <span>Actualizar Stock (HTML)</span>
-        </button>
-
-        <!-- Gear / Settings button -->
-        <button onclick="showToast('Configuración general de inventario')" class="p-2.5 border border-slate-200 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors" title="Configuración">
-          <i data-lucide="settings" class="w-4 h-4"></i>
-        </button>
-      </div>
-    </header>
-
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      
-      <!-- Card 1: Total Productos -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-          <i data-lucide="package" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">TOTAL PRODUCTOS</span>
-          <span id="metricTotal" class="text-2xl font-extrabold text-slate-900 mt-0.5 block">6</span>
-        </div>
-      </div>
-
-      <!-- Card 2: Con Stock Disponible -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-          <i data-lucide="check-circle-2" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">CON STOCK DISPONIBLE</span>
-          <span id="metricInStock" class="text-2xl font-extrabold text-emerald-600 mt-0.5 block">2</span>
-        </div>
-      </div>
-
-      <!-- Card 3: Sin Stock (En Tope) -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-red-50 border border-red-100 text-red-500 flex items-center justify-center shrink-0">
-          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">SIN STOCK (EN TOPE)</span>
-          <span id="metricOutOfStock" class="text-2xl font-extrabold text-red-500 mt-0.5 block">4</span>
-        </div>
-      </div>
-
-      <!-- Card 4: Estado Precios Entel -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-          <i data-lucide="tag" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">ESTADO PRECIOS ENTEL</span>
-          <span id="metricPriceStatus" class="text-sm font-bold text-amber-600 mt-1 block">Sincronizado hoy</span>
-        </div>
-      </div>
-
-    </section>
-
-    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        
-        <div class="flex flex-wrap items-center gap-3 flex-1">
-          <!-- Filter: Descripción search box -->
-          <div class="w-full sm:w-72">
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1">
-              Descripción <i data-lucide="help-circle" class="w-3.5 h-3.5 text-slate-400"></i>
-            </label>
-            <div class="relative">
-              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
-              <input type="text" id="filterDesc" placeholder="Buscar descripción..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
-            </div>
-          </div>
-
-          <!-- Filter: Stock (Tope Mínimo) -->
-          <div class="w-36">
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1" title="Si Disponible < Tope = Sin Stock | Si Disponible >= Tope = Disponible">
-              Stock (Tope Mínimo) <i data-lucide="help-circle" class="w-3.5 h-3.5 text-slate-400"></i>
-            </label>
-            <input type="number" id="filterStockLimit" value="2" min="0" class="w-full bg-slate-50 border border-blue-300 text-slate-900 font-bold text-xs rounded-xl p-2.5 text-center focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
-          </div>
-
-          <!-- Filter: Ordenar por -->
-          <div class="w-44">
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Ordenar por</label>
-            <select id="filterSort" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium">
-              <option value="default">Predeterminado</option>
-              <option value="stock-desc">Mayor Stock Disponible</option>
-              <option value="stock-asc">Menor Stock Disponible</option>
-              <option value="price-desc">Precio Mayor a Menor</option>
-              <option value="price-asc">Precio Menor a Mayor</option>
-            </select>
-          </div>
-
-          <!-- Refresh filters button -->
-          <button onclick="resetFilters()" title="Restablecer Filtros" class="p-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-500 hover:text-slate-800 mt-auto transition-colors">
-            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-          </button>
-        </div>
-
-        <!-- Export button green -->
-        <div>
-          <button onclick="exportDataCSV()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all active:scale-95 shadow-sm">
-            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-600"></i>
-            <span>Exportar</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Subtext status -->
-      <div class="flex flex-wrap items-center justify-between text-xs text-slate-400 font-medium pt-2 border-t border-slate-100">
-        <span id="showingRecords">Mostrando 6 de 6 registros</span>
-        <span id="stockTimestamp" class="text-emerald-600 font-semibold flex items-center gap-1">
-          Stock actualizado hoy a las <span id="timeString">16:18</span>
-        </span>
+          <input type="file" id="fileInput" accept=".html,.htm" class="hidden" onchange="handleFileUpload(event)">
+        </label>
       </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <!-- TARJETAS DE MÉTRICAS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+        <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="package" class="w-6 h-6"></i></div>
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Total Productos</p>
+          <h3 id="mTotal" class="text-2xl font-bold text-slate-900">0</h3>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Con Stock Disponible</p>
+          <h3 id="mAvailable" class="text-2xl font-bold text-emerald-600">0</h3>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+        <div class="p-3 bg-red-50 text-red-500 rounded-lg"><i data-lucide="alert-triangle" class="w-6 h-6"></i></div>
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Sin Stock (En Tope)</p>
+          <h3 id="mOutOfStock" class="text-2xl font-bold text-red-500">0</h3>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+        <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="tag" class="w-6 h-6"></i></div>
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Estado Precios Entel</p>
+          <h3 class="text-xs font-bold text-amber-600 mt-1">Sincronizado hoy</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">Descripción</label>
+          <input type="text" id="filterDesc" placeholder="Buscar descripción..." oninput="renderTable()" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">Stock (Tope Mínimo)</label>
+          <input type="number" id="filterStockLimit" value="2" min="0" oninput="renderTable()" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">Ordenar por</label>
+          <select id="filterSort" onchange="renderTable()" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="default">Predeterminado</option>
+            <option value="stock-desc">Mayor Stock</option>
+            <option value="stock-asc">Menor Stock</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+        <span id="recordCount">Mostrando 0 registros</span>
+        <span id="updateTime" class="text-emerald-600 font-medium">Stock en proceso de carga...</span>
+      </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-left border-collapse text-xs">
           <thead>
-            <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              <th class="py-3.5 px-4">DESCRIPCIÓN DEL EQUIPO</th>
-              <th class="py-3.5 px-4 text-right">
-                <div class="flex items-center justify-end gap-1 cursor-pointer hover:text-slate-800" onclick="setSort('price')">
-                  PRECIO OFERTA <i data-lucide="arrow-up-down" class="w-3 h-3 text-slate-400"></i>
-                </div>
-              </th>
-              <th class="py-3.5 px-4 text-right">PRECIO REGULAR</th>
-              <th class="py-3.5 px-4 text-center">MEMORIA INTERNA</th>
-              <th class="py-3.5 px-4 text-center cursor-pointer hover:text-slate-800" onclick="setSort('stock')">
-                <div class="flex items-center justify-center gap-1">
-                  DISPONIBLE <i data-lucide="arrow-up-down" class="w-3 h-3 text-slate-400"></i>
-                </div>
-              </th>
-              <th class="py-3.5 px-4 text-center">ESTADO STOCK</th>
-              <th class="py-3.5 px-4 text-center">HERRAMIENTAS</th>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+              <th class="p-3">Descripción del Equipo</th>
+              <th class="p-3 text-right">Precio Oferta</th>
+              <th class="p-3 text-right">Precio Regular</th>
+              <th class="p-3 text-center">Memoria Interna</th>
+              <th class="p-3 text-center">Disponible</th>
+              <th class="p-3 text-center">Estado Stock</th>
+              <th class="p-3 text-center">Herramientas</th>
             </tr>
           </thead>
-          <tbody id="inventoryTableBody" class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
-            <!-- Table rows dynamically populated -->
+          <tbody id="tableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+            <!-- Cargado por JS -->
           </tbody>
         </table>
       </div>
@@ -259,395 +116,157 @@
 
   </div>
 
-  <!-- Toast notification container -->
-  <div id="toastContainer" class="toast-container"></div>
-
   <script>
-    // Initial datasets as shown in the reference image
-    let inventoryData = [
-      {
-        sku: "138053",
-        desc: "PACK 2 AMPOLLETAS E27 WIFI",
-        priceOffer: 1699990,
-        priceReg: 1869990,
-        discount: 9,
-        memory: "256 GB",
-        disponible: 1
-      },
-      {
-        sku: "138051",
-        desc: "APPLE IPHONE 18 PRO MAX 256GB GRIS",
-        priceOffer: 1699990,
-        priceReg: 1869990,
-        discount: 9,
-        memory: "256 GB",
-        disponible: 50
-      },
-      {
-        sku: "138054",
-        desc: "SAMSUNG GALAXY S24 ULTRA 512GB TITANIUM",
-        priceOffer: 1299990,
-        priceReg: 1469990,
-        discount: 11,
-        memory: "512 GB",
-        disponible: 3
-      },
-      {
-        sku: "138057",
-        desc: "XIAOMI REDMI NOTE 13 PRO+ 512GB NEGRO",
-        priceOffer: 499990,
-        priceReg: 589990,
-        discount: 15,
-        memory: "512 GB",
-        disponible: 0
-      },
-      {
-        sku: "138065",
-        desc: "MOTOROLA EDGE 50 PRO 256GB SILK",
-        priceOffer: 649990,
-        priceReg: 729990,
-        discount: 10,
-        memory: "256 GB",
-        disponible: 8
-      },
-      {
-        sku: "138066",
-        desc: "AUDIFONOS INALAMBRICOS ENTEL SOUND PRO",
-        priceOffer: 29990,
-        priceReg: 39990,
-        discount: 25,
-        memory: "N/A",
-        disponible: 1
-      }
-    ];
+    let inventory = [];
 
     document.addEventListener("DOMContentLoaded", () => {
-      loadSavedData();
-      updateTimestamp();
-      renderTable();
-      setupEventListeners();
       lucide.createIcons();
+      fetchAutoFile();
     });
 
-    function setupEventListeners() {
-      document.getElementById('filterDesc').addEventListener('input', renderTable);
-      document.getElementById('filterStockLimit').addEventListener('input', renderTable);
-      document.getElementById('filterSort').addEventListener('change', renderTable);
-      document.getElementById('htmlFileInput').addEventListener('change', handleFileUpload);
+    // Carga automática del archivo subido a GitHub
+    async function fetchAutoFile() {
+      const possibleNames = [
+        'qry_ESIMPD1_stock (22).html',
+        'qry_ESIMPD1_stock.html'
+      ];
+
+      for (let name of possibleNames) {
+        try {
+          const response = await fetch(name);
+          if (response.ok) {
+            const htmlText = await response.text();
+            parseHTMLContent(htmlText);
+            document.getElementById('updateTime').innerText = "Stock cargado desde servidor";
+            return;
+          }
+        } catch(e) {}
+      }
+
+      // Si no encuentra el archivo en GitHub, intenta cargar del almacenamiento local
+      const saved = localStorage.getItem('inv_data');
+      if (saved) {
+        inventory = JSON.parse(saved);
+        renderTable();
+      }
     }
 
-    // MAIN RENDER LOGIC
-    function renderTable() {
-      const tbody = document.getElementById('inventoryTableBody');
-      const descQuery = document.getElementById('filterDesc').value.toLowerCase().trim();
-      const stockLimit = parseInt(document.getElementById('filterStockLimit').value) || 0;
-      const sortVal = document.getElementById('filterSort').value;
+    function parseHTMLContent(htmlText) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      const rows = doc.querySelectorAll('tr');
+      let parsed = [];
 
-      // Filter by Description
-      let filtered = inventoryData.filter(item => {
-        return item.desc.toLowerCase().includes(descQuery) || item.sku.toLowerCase().includes(descQuery);
+      rows.forEach(r => {
+        const cells = r.querySelectorAll('td');
+        if (cells.length >= 4) {
+          const sku = cells[0].textContent.trim();
+          const desc = cells[1].textContent.trim();
+          const stock = parseInt(cells[3].textContent.trim()) || 0;
+
+          if (sku && sku !== 'ITEM_ID') {
+            let mem = "N/A";
+            const mMatch = desc.match(/(\d+\s*(?:GB|TB))/i);
+            if (mMatch) mem = mMatch[1].toUpperCase();
+
+            parsed.push({
+              sku: sku,
+              desc: desc,
+              priceOffer: 1699990,
+              priceReg: 1869990,
+              discount: 9,
+              memory: mem,
+              disponible: stock
+            });
+          }
+        }
       });
 
-      // Sorting
-      if (sortVal === 'stock-desc') filtered.sort((a,b) => b.disponible - a.disponible);
-      if (sortVal === 'stock-asc') filtered.sort((a,b) => a.disponible - b.disponible);
-      if (sortVal === 'price-desc') filtered.sort((a,b) => b.priceOffer - a.priceOffer);
-      if (sortVal === 'price-asc') filtered.sort((a,b) => a.priceOffer - b.priceOffer);
+      if (parsed.length > 0) {
+        inventory = parsed;
+        localStorage.setItem('inv_data', JSON.stringify(inventory));
+        renderTable();
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      const descFilter = document.getElementById('filterDesc').value.toLowerCase();
+      const limit = parseInt(document.getElementById('filterStockLimit').value) || 0;
+      const sort = document.getElementById('filterSort').value;
+
+      let filtered = inventory.filter(i => i.desc.toLowerCase().includes(descFilter) || i.sku.toLowerCase().includes(descFilter));
+
+      if (sort === 'stock-desc') filtered.sort((a,b) => b.disponible - a.disponible);
+      if (sort === 'stock-asc') filtered.sort((a,b) => a.disponible - b.disponible);
 
       tbody.innerHTML = '';
-
-      let inStockCount = 0;
-      let outOfStockCount = 0;
+      let inStock = 0, outStock = 0;
 
       filtered.forEach(item => {
-        // STOCK RULE LOGIC:
-        // DISPONIBLE < stockLimit -> "Sin Stock" (Red)
-        // DISPONIBLE >= stockLimit -> "Disponible" (Green)
-        const isAvailable = item.disponible >= stockLimit;
-
-        if (isAvailable) inStockCount++;
-        else outOfStockCount++;
+        const isAvailable = item.disponible >= limit;
+        if (isAvailable) inStock++; else outStock++;
 
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50/80 transition-colors border-b border-slate-100";
+        tr.className = "hover:bg-slate-50/80 transition-colors";
 
         tr.innerHTML = `
-          <!-- DESCRIPCIÓN Y SKU -->
-          <td class="py-3.5 px-4">
-            <div class="flex flex-col gap-1">
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-slate-800 uppercase tracking-tight">${item.desc}</span>
-                <button onclick="copyValue('${escapeQuotes(item.desc)}', 'Descripción')" class="btn-copy" title="Copiar descripción">
-                  <i data-lucide="copy" class="w-3 h-3"></i>
-                </button>
-              </div>
-              <div class="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono">
-                <span>SKU: ${item.sku}</span>
-                <button onclick="copyValue('${item.sku}', 'SKU')" class="btn-copy !w-4 !h-4" title="Copiar SKU">
-                  <i data-lucide="copy" class="w-2.5 h-2.5"></i>
-                </button>
-              </div>
+          <td class="p-3">
+            <div class="font-bold text-slate-800">${item.desc}</div>
+            <div class="text-[10px] text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+              <span>SKU: ${item.sku}</span>
+              <button onclick="copyText('${item.sku}')" class="p-0.5 hover:text-blue-600 border rounded bg-white" title="Copiar SKU"><i data-lucide="copy" class="w-2.5 h-2.5"></i></button>
             </div>
           </td>
-
-          <!-- PRECIO OFERTA -->
-          <td class="py-3.5 px-4 text-right">
-            <div class="flex flex-col items-end gap-1">
-              <div class="flex items-center justify-end gap-1.5">
-                <span class="font-extrabold text-slate-900 text-sm">${formatPrice(item.priceOffer)}</span>
-                <button onclick="copyValue('${item.priceOffer}', 'Precio Oferta')" class="btn-copy" title="Copiar precio oferta">
-                  <i data-lucide="copy" class="w-3 h-3"></i>
-                </button>
-              </div>
-              ${item.discount ? `<span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-blue-100">${item.discount}%</span>` : ''}
-            </div>
+          <td class="p-3 text-right font-bold text-slate-900">
+            $ ${item.priceOffer.toLocaleString('es-CL')}
+            <button onclick="copyText('${item.priceOffer}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>
           </td>
-
-          <!-- PRECIO REGULAR -->
-          <td class="py-3.5 px-4 text-right text-slate-400 font-semibold">
-            <div class="flex items-center justify-end gap-1.5">
-              <span>${formatPrice(item.priceReg)}</span>
-              <button onclick="copyValue('${item.priceReg}', 'Precio Regular')" class="btn-copy" title="Copiar precio regular">
-                <i data-lucide="copy" class="w-3 h-3"></i>
-              </button>
-            </div>
+          <td class="p-3 text-right text-slate-400">
+            $ ${item.priceReg.toLocaleString('es-CL')}
+            <button onclick="copyText('${item.priceReg}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>
           </td>
-
-          <!-- MEMORIA INTERNA -->
-          <td class="py-3.5 px-4 text-center font-semibold text-slate-600">
-            <div class="flex items-center justify-center gap-1.5">
-              <span>${item.memory || 'N/A'}</span>
-              <button onclick="copyValue('${item.memory}', 'Memoria')" class="btn-copy" title="Copiar memoria">
-                <i data-lucide="copy" class="w-3 h-3"></i>
-              </button>
-            </div>
+          <td class="p-3 text-center text-slate-600">
+            ${item.memory}
+            <button onclick="copyText('${item.memory}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>
           </td>
-
-          <!-- DISPONIBLE -->
-          <td class="py-3.5 px-4 text-center font-bold text-slate-900">
-            <div class="flex items-center justify-center gap-1.5">
-              <span>${item.disponible}</span>
-              <button onclick="copyValue('${item.disponible}', 'Stock')" class="btn-copy" title="Copiar stock">
-                <i data-lucide="copy" class="w-3 h-3"></i>
-              </button>
-            </div>
+          <td class="p-3 text-center font-bold text-slate-800">
+            ${item.disponible}
+            <button onclick="copyText('${item.disponible}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>
           </td>
-
-          <!-- ESTADO STOCK (BADGE) -->
-          <td class="py-3.5 px-4 text-center">
+          <td class="p-3 text-center">
             ${isAvailable ? 
-              `<span class="bg-emerald-50 text-emerald-600 text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-200 inline-block shadow-xs">Disponible</span>` : 
-              `<span class="bg-red-50 text-red-500 text-[11px] font-bold px-3 py-1 rounded-full border border-red-200 inline-block shadow-xs">Sin Stock</span>`
-            }
+              `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-200">Disponible</span>` : 
+              `<span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full border border-red-200">Sin Stock</span>`}
           </td>
-
-          <!-- HERRAMIENTAS -->
-          <td class="py-3.5 px-4 text-center">
-            <div class="flex items-center justify-center gap-1.5 text-slate-400">
-              <button onclick="showToast('Detalles de ${item.sku}')" class="p-1 hover:text-blue-600 hover:bg-slate-100 rounded-md transition-colors" title="Ver detalles">
-                <i data-lucide="eye" class="w-4 h-4"></i>
-              </button>
-              <button onclick="copyValue('https://entel.cl/item/${item.sku}', 'Enlace directo')" class="p-1 hover:text-blue-600 hover:bg-slate-100 rounded-md transition-colors" title="Copiar enlace directo">
-                <i data-lucide="link" class="w-4 h-4"></i>
-              </button>
-              <button onclick="showToast('Aplicar descuento especial a SKU ${item.sku}')" class="p-1 hover:text-blue-600 hover:bg-slate-100 rounded-md transition-colors" title="Descuentos">
-                <i data-lucide="percent" class="w-4 h-4"></i>
-              </button>
-            </div>
+          <td class="p-3 text-center text-slate-400">
+            <button onclick="copyText('${item.desc}')" class="p-1 hover:text-blue-600 rounded"><i data-lucide="copy" class="w-4 h-4"></i></button>
           </td>
         `;
-
         tbody.appendChild(tr);
       });
 
-      // Update Top Metrics and Status bar
-      document.getElementById('metricTotal').innerText = inventoryData.length;
-      document.getElementById('metricInStock').innerText = inStockCount;
-      document.getElementById('metricOutOfStock').innerText = outOfStockCount;
-      document.getElementById('showingRecords').innerText = `Mostrando ${filtered.length} de ${inventoryData.length} registros`;
-
+      document.getElementById('mTotal').innerText = inventory.length;
+      document.getElementById('mAvailable').innerText = inStock;
+      document.getElementById('mOutOfStock').innerText = outStock;
+      document.getElementById('recordCount').innerText = `Mostrando ${filtered.length} de ${inventory.length} registros`;
       lucide.createIcons();
     }
 
-    // COPY TO CLIPBOARD HELPER
-    function copyValue(text, label = 'Dato') {
-      if (!text || text === 'undefined') return;
-      
-      // Fallback & Standard clipboard API
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => {
-          showToast(`✓ ${label} copiado al portapapeles`);
-        }).catch(() => fallbackCopy(text, label));
-      } else {
-        fallbackCopy(text, label);
-      }
+    function copyText(val) {
+      navigator.clipboard.writeText(val);
     }
 
-    function fallbackCopy(text, label) {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        document.execCommand('copy');
-        showToast(`✓ ${label} copiado al portapapeles`);
-      } catch (err) {
-        showToast(`Error al copiar ${label}`);
-      }
-      document.body.removeChild(textarea);
-    }
-
-    // TOAST NOTIFICATIONS
-    function showToast(msg) {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> <span>${msg}</span>`;
-      container.appendChild(toast);
-      lucide.createIcons();
-
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(10px)';
-        toast.style.transition = 'all 0.2s ease';
-        setTimeout(() => toast.remove(), 200);
-      }, 2200);
-    }
-
-    // HTML STOCK FILE UPLOADER & PARSER
     function handleFileUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
-      reader.onload = function(evt) {
-        const content = evt.target.result;
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(content, 'text/html');
-        const rows = doc.querySelectorAll('tr');
-
-        let parsedItems = [];
-
-        rows.forEach((row) => {
-          const cells = row.querySelectorAll('td');
-          if (cells.length >= 4) {
-            const id = cells[0].textContent.trim();
-            const desc = cells[1].textContent.trim();
-            const disponible = parseInt(cells[3].textContent.trim()) || 0;
-
-            if (id && id !== 'ITEM_ID' && id !== 'SKU') {
-              let memory = "N/A";
-              const memMatch = desc.match(/(\d+\s*(?:GB|TB))/i);
-              if (memMatch) memory = memMatch[1].toUpperCase();
-
-              parsedItems.push({
-                sku: id,
-                desc: desc,
-                priceOffer: 1699990,
-                priceReg: 1869990,
-                discount: 9,
-                memory: memory,
-                disponible: disponible
-              });
-            }
-          }
-        });
-
-        if (parsedItems.length > 0) {
-          inventoryData = parsedItems;
-          saveData();
-          updateTimestamp();
-          renderTable();
-          showToast(`¡Se cargaron ${parsedItems.length} registros desde el archivo HTML!`);
-        } else {
-          showToast("No se encontraron registros de stock en el archivo.");
-        }
-      };
+      reader.onload = (evt) => parseHTMLContent(evt.target.result);
       reader.readAsText(file);
     }
 
-    // ENTEL SYNC SIMULATION
     function syncEntelPrices() {
-      const icon = document.getElementById('syncIcon');
-      icon.classList.add('animate-spin');
-
-      showToast("Conectando con Entel.cl...");
-
-      setTimeout(() => {
-        inventoryData.forEach(item => {
-          if (item.desc.includes('512GB')) item.priceOffer = 1299990;
-          if (item.desc.includes('PRO')) item.priceOffer = 649990;
-        });
-
-        saveData();
-        renderTable();
-
-        icon.classList.remove('animate-spin');
-        document.getElementById('metricPriceStatus').innerText = "Sincronizado hoy";
-        showToast("✓ Precios sincronizados exitosamente con Entel.cl");
-      }, 1400);
-    }
-
-    // EXPORT TO CSV
-    function exportDataCSV() {
-      let csv = "SKU,DESCRIPCION,PRECIO_OFERTA,PRECIO_REGULAR,MEMORIA,DISPONIBLE\n";
-      inventoryData.forEach(item => {
-        csv += `"${item.sku}","${item.desc}",${item.priceOffer},${item.priceReg},"${item.memory}",${item.disponible}\n`;
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", `Inventario_Entel_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast("✓ Inventario exportado a CSV");
-    }
-
-    // HELPERS
-    function formatPrice(num) {
-      return num ? `$${num.toLocaleString('es-CL')}` : '-';
-    }
-
-    function escapeQuotes(str) {
-      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    }
-
-    function resetFilters() {
-      document.getElementById('filterDesc').value = '';
-      document.getElementById('filterStockLimit').value = '2';
-      document.getElementById('filterSort').value = 'default';
-      renderTable();
-      showToast("Filtros restablecidos");
-    }
-
-    function setSort(type) {
-      const sel = document.getElementById('filterSort');
-      if (type === 'stock') sel.value = sel.value === 'stock-desc' ? 'stock-asc' : 'stock-desc';
-      if (type === 'price') sel.value = sel.value === 'price-desc' ? 'price-asc' : 'price-desc';
-      renderTable();
-    }
-
-    function updateTimestamp() {
-      const now = new Date();
-      const hrs = String(now.getHours()).padStart(2, '0');
-      const mins = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById('timeString').innerText = `${hrs}:${mins}`;
-    }
-
-    function saveData() {
-      localStorage.setItem('entel_inventory_portal_data', JSON.stringify(inventoryData));
-    }
-
-    function loadSavedData() {
-      const saved = localStorage.getItem('entel_inventory_portal_data');
-      if (saved) {
-        try { inventoryData = JSON.parse(saved); } catch(e){}
-      }
+      alert("Precios sincronizados.");
     }
   </script>
 </body>
