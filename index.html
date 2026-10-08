@@ -24,7 +24,7 @@
       <div class="flex items-center space-x-2">
         <button onclick="syncEntelPrices()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-1.5 shadow-sm transition-all">
           <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-          <span>Sincronizar Entel.cl</span>
+          <span>Cargar Precios Sincronizados</span>
         </button>
         <label class="bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold px-4 py-2 rounded-lg border border-blue-200 cursor-pointer flex items-center space-x-1.5 transition-all">
           <i data-lucide="file-plus" class="w-4 h-4"></i>
@@ -61,7 +61,7 @@
         <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="tag" class="w-6 h-6"></i></div>
         <div>
           <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Estado Precios Entel</p>
-          <h3 class="text-xs font-bold text-amber-600 mt-1">Sincronizado hoy</h3>
+          <h3 id="priceStatus" class="text-xs font-bold text-amber-600 mt-1">Robot Entel Activo</h3>
         </div>
       </div>
     </div>
@@ -88,7 +88,7 @@
       </div>
       <div class="flex justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-100">
         <span id="recordCount">Mostrando 0 registros</span>
-        <span id="updateTime" class="text-emerald-600 font-medium">Stock en proceso de carga...</span>
+        <span id="updateTime" class="text-emerald-600 font-medium">Cargando inventario...</span>
       </div>
     </div>
 
@@ -118,19 +118,16 @@
 
   <script>
     let inventory = [];
+    let syncedPrices = {};
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       lucide.createIcons();
-      fetchAutoFile();
+      await fetchAutoFile();
+      await loadPricesJSON();
     });
 
-    // Carga automática del archivo subido a GitHub
     async function fetchAutoFile() {
-      const possibleNames = [
-        'qry_ESIMPD1_stock (22).html',
-        'qry_ESIMPD1_stock.html'
-      ];
-
+      const possibleNames = ['qry_ESIMPD1_stock.html', 'qry_ESIMPD1_stock (22).html'];
       for (let name of possibleNames) {
         try {
           const response = await fetch(name);
@@ -142,13 +139,36 @@
           }
         } catch(e) {}
       }
-
-      // Si no encuentra el archivo en GitHub, intenta cargar del almacenamiento local
       const saved = localStorage.getItem('inv_data');
       if (saved) {
         inventory = JSON.parse(saved);
         renderTable();
       }
+    }
+
+    async function loadPricesJSON() {
+      try {
+        const response = await fetch('precios.json?t=' + new Date().getTime());
+        if (response.ok) {
+          syncedPrices = await response.json();
+          applySyncedPrices();
+          document.getElementById('priceStatus').innerText = "Precios Entel Actualizados";
+        }
+      } catch(e) {
+        console.warn("Aún no se ha generado precios.json");
+      }
+    }
+
+    function applySyncedPrices() {
+      if (!syncedPrices || Object.keys(syncedPrices).length === 0) return;
+      
+      inventory.forEach(item => {
+        if (syncedPrices[item.sku]) {
+          if (syncedPrices[item.sku].offer) item.priceOffer = syncedPrices[item.sku].offer;
+          if (syncedPrices[item.sku].regular) item.priceReg = syncedPrices[item.sku].regular;
+        }
+      });
+      renderTable();
     }
 
     function parseHTMLContent(htmlText) {
@@ -172,9 +192,8 @@
             parsed.push({
               sku: sku,
               desc: desc,
-              priceOffer: 1699990,
-              priceReg: 1869990,
-              discount: 9,
+              priceOffer: "-",
+              priceReg: "-",
               memory: mem,
               disponible: stock
             });
@@ -184,7 +203,7 @@
 
       if (parsed.length > 0) {
         inventory = parsed;
-        localStorage.setItem('inv_data', JSON.stringify(inventory));
+        applySyncedPrices();
         renderTable();
       }
     }
@@ -207,6 +226,9 @@
         const isAvailable = item.disponible >= limit;
         if (isAvailable) inStock++; else outStock++;
 
+        const offerStr = typeof item.priceOffer === 'number' ? `$ ${item.priceOffer.toLocaleString('es-CL')}` : item.priceOffer;
+        const regStr = typeof item.priceReg === 'number' ? `$ ${item.priceReg.toLocaleString('es-CL')}` : item.priceReg;
+
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50/80 transition-colors";
 
@@ -219,12 +241,12 @@
             </div>
           </td>
           <td class="p-3 text-right font-bold text-slate-900">
-            $ ${item.priceOffer.toLocaleString('es-CL')}
-            <button onclick="copyText('${item.priceOffer}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>
+            ${offerStr}
+            ${typeof item.priceOffer === 'number' ? `<button onclick="copyText('${item.priceOffer}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>` : ''}
           </td>
           <td class="p-3 text-right text-slate-400">
-            $ ${item.priceReg.toLocaleString('es-CL')}
-            <button onclick="copyText('${item.priceReg}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>
+            ${regStr}
+            ${typeof item.priceReg === 'number' ? `<button onclick="copyText('${item.priceReg}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>` : ''}
           </td>
           <td class="p-3 text-center text-slate-600">
             ${item.memory}
@@ -266,62 +288,8 @@
     }
 
     async function syncEntelPrices() {
-      const btnSync = document.querySelector('button[onclick="syncEntelPrices()"]');
-      if (btnSync) {
-        btnSync.disabled = true;
-        btnSync.innerHTML = '<span>Sincronizando con Entel...</span>';
-      }
-
-      let actualizados = 0;
-
-      for (let item of inventory) {
-        try {
-          const busqueda = item.sku || item.desc;
-          if (!busqueda) continue;
-
-          const entelUrl = `https://miportal.entel.cl/personas/catalogo/equipos?q=${encodeURIComponent(busqueda)}`;
-          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(entelUrl)}`;
-
-          const response = await fetch(proxyUrl);
-          if (!response.ok) continue;
-
-          const data = await response.json();
-
-          if (data && data.contents) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(data.contents, 'text/html');
-
-            const elOferta = doc.querySelector('.price-offer, .precio-oferta, .off-price, [data-price-offer]');
-            const elRegular = doc.querySelector('.price-regular, .precio-lista, .list-price, [data-price-regular]');
-
-            if (elOferta) {
-              const pOferta = parseInt(elOferta.textContent.replace(/\D/g, ''), 10);
-              if (pOferta) {
-                item.priceOffer = pOferta;
-                if (elRegular) {
-                  const pReg = parseInt(elRegular.textContent.replace(/\D/g, ''), 10);
-                  if (pReg) item.priceReg = pReg;
-                }
-                actualizados++;
-              }
-            }
-          }
-        } catch (err) {
-          console.warn(`No se pudo sincronizar ${item.sku || item.desc}`, err);
-        }
-      }
-
-      localStorage.setItem('inv_data', JSON.stringify(inventory));
-      if (typeof renderTable === 'function') {
-        renderTable();
-      }
-
-      if (btnSync) {
-        btnSync.disabled = false;
-        btnSync.innerHTML = '<i data-lucide="refresh-cw"></i><span>Sincronizar Entel.cl</span>';
-      }
-
-      alert(`✓ Proceso automático finalizado. Se actualizaron ${actualizados} productos.`);
+      await loadPricesJSON();
+      alert("Precios recargados desde el repositorio.");
     }
   </script>
 </body>
