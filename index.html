@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inventario & Comparador Técnico de Equipos</title>
+  <title>Inventario & Consultor de Equipos Entel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Librería para leer archivos Excel (.xlsx) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen p-4 md:p-6 text-slate-800 font-sans pb-24">
   <div class="max-w-7xl mx-auto space-y-6">
@@ -20,16 +18,11 @@
         </div>
         <div>
           <h1 class="text-xl font-bold text-slate-900">Control de Información</h1>
-          <p class="text-xs text-slate-500">Inventario de productos & Comparador Técnico Comercial</p>
+          <p class="text-xs text-slate-500">Inventario de Stock & Enlace Directo a Entel.cl</p>
         </div>
       </div>
       <div class="flex items-center space-x-2">
-        <label class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-1.5 shadow-sm transition-all cursor-pointer">
-          <i data-lucide="upload" class="w-4 h-4"></i>
-          <span>Cargar Precios (Excel / CSV)</span>
-          <input type="file" id="priceFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handlePriceFileUpload(event)">
-        </label>
-        <label class="bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold px-4 py-2 rounded-lg border border-blue-200 cursor-pointer flex items-center space-x-1.5 transition-all">
+        <label class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer flex items-center space-x-1.5 transition-all shadow-sm">
           <i data-lucide="file-plus" class="w-4 h-4"></i>
           <span>Actualizar Stock (HTML)</span>
           <input type="file" id="fileInput" accept=".html,.htm" class="hidden" onchange="handleFileUpload(event)">
@@ -38,7 +31,7 @@
     </div>
 
     <!-- TARJETAS DE MÉTRICAS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
         <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="package" class="w-6 h-6"></i></div>
         <div>
@@ -58,13 +51,6 @@
         <div>
           <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Sin Stock (En Tope)</p>
           <h3 id="mOutOfStock" class="text-2xl font-bold text-red-500">0</h3>
-        </div>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-        <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="tag" class="w-6 h-6"></i></div>
-        <div>
-          <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Estado Precios</p>
-          <h3 id="priceStatus" class="text-xs font-bold text-amber-600 mt-1">Listo para cargar Excel</h3>
         </div>
       </div>
     </div>
@@ -103,12 +89,11 @@
             <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
               <th class="p-3 text-center w-12">Comparar</th>
               <th class="p-3">Descripción del Equipo</th>
-              <th class="p-3 text-right">Precio Oferta</th>
-              <th class="p-3 text-right">Precio Regular</th>
-              <th class="p-3 text-center">Memoria / RAM</th>
+              <th class="p-3 text-center">Memoria Interna</th>
               <th class="p-3 text-center">Disponible</th>
               <th class="p-3 text-center">Estado Stock</th>
-              <th class="p-3 text-center">Herramientas</th>
+              <th class="p-3 text-center">Ficha & Precios Entel</th>
+              <th class="p-3 text-center">Copiar</th>
             </tr>
           </thead>
           <tbody id="tableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
@@ -130,7 +115,7 @@
     <button onclick="clearSelectedForCompare()" class="text-slate-400 hover:text-white text-xs underline ml-2">Limpiar</button>
   </div>
 
-  <!-- MODAL DE COMPARACIÓN TÉCNICA Y COMERCIAL -->
+  <!-- MODAL DE COMPARACIÓN TÉCNICA -->
   <div id="compareModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-6 relative border border-slate-200">
       <div class="flex justify-between items-center border-b pb-4 sticky top-0 bg-white z-10">
@@ -149,12 +134,12 @@
       </div>
 
       <div id="compareContent" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Renderizado dinámico de la comparativa técnica -->
+        <!-- Renderizado dinámico -->
       </div>
 
       <div class="flex justify-end pt-4 border-t sticky bottom-0 bg-white">
         <button onclick="closeCompareModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all">
-          Entendido / Cerrar
+          Cerrar
         </button>
       </div>
     </div>
@@ -162,7 +147,6 @@
 
   <script>
     let inventory = [];
-    let syncedPrices = {};
     let selectedForCompare = [];
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -190,62 +174,55 @@
       }
     }
 
+    function generateEntelUrl(desc) {
+      let clean = desc.toLowerCase()
+        .replace(/^apl\s+/i, '')
+        .replace(/^apple\s+/i, '')
+        .replace(/^samsung\s+/i, '')
+        .replace(/\breac\b/gi, '')
+        .trim();
+
+      const slug = clean.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      return `https://miportal.entel.cl/personas/celulares/${slug}`;
+    }
+
     function getTechSpecs(desc) {
       const name = desc.toUpperCase();
 
-      // Detección automática de Procesador
       let proc = "Octa-Core Estándar";
-      if (name.includes("IPHONE 15 PRO") || name.includes("IPHONE 15PM")) proc = "Apple A17 Pro (3nm High-End)";
-      else if (name.includes("IPHONE 15")) proc = "Apple A16 Bionic";
-      else if (name.includes("IPHONE 14") || name.includes("IPHONE 13")) proc = "Apple A15 Bionic";
-      else if (name.includes("IPHONE 11") || name.includes("IPHONE 12")) proc = "Apple A13/A14 Bionic";
-      else if (name.includes("S24 ULTRA")) proc = "Snapdragon 8 Gen 3 for Galaxy";
-      else if (name.includes("S24")) proc = "Exynos 2400 / Snapdragon 8 Gen 3";
-      else if (name.includes("S23 FE") || name.includes("S23")) proc = "Snapdragon 8 Gen 2 / Exynos 2200";
+      if (name.includes("IPHONE 18 PRO") || name.includes("IPHONE 17 PRO") || name.includes("IPHONE 16 PRO") || name.includes("IPHONE 15 PRO")) proc = "Apple A-Series Pro (3nm High-End)";
+      else if (name.includes("IPHONE")) proc = "Apple A-Series Bionic";
+      else if (name.includes("S24 ULTRA") || name.includes("S25 ULTRA")) proc = "Snapdragon 8 Gen High-Performance";
+      else if (name.includes("S24") || name.includes("S23")) proc = "Exynos / Snapdragon High-End";
       else if (name.includes("A55") || name.includes("A54")) proc = "Exynos 1480 (Gama Media Alta)";
-      else if (name.includes("A35") || name.includes("A34")) proc = "Exynos 1380 / Dimensity 1080";
-      else if (name.includes("A15") || name.includes("A05") || name.includes("A14")) proc = "Helio G99 / Dimensity 6100+";
-      else if (name.includes("REDMI NOTE 13 PRO")) proc = "Snapdragon 7s Gen 2 / Dimensity 7200";
-      else if (name.includes("REDMI 13") || name.includes("REDMI 12")) proc = "MediaTek Helio G91 Ultra";
+      else if (name.includes("REDMI NOTE")) proc = "Snapdragon / Dimensity Gaming";
 
-      // Detección automática de Pantalla
       let screen = '6.5" FHD+ LCD 90Hz';
       if (name.includes("ULTRA") || name.includes("PRO MAX")) screen = '6.8" Dynamic AMOLED 2X 120Hz (Quad HD+)';
-      else if (name.includes("IPHONE 15 PRO") || name.includes("S24") || name.includes("S23")) screen = '6.1" - 6.2" Super Retina XDR / AMOLED 120Hz';
-      else if (name.includes("NOTE 13") || name.includes("A55") || name.includes("A35")) screen = '6.67" AMOLED FHD+ 120Hz (Alta Brillo)';
-      else if (name.includes("A05") || name.includes("12C") || name.includes("A15")) screen = '6.5" - 6.7" HD+ / FHD+ 90Hz';
+      else if (name.includes("PRO") || name.includes("S24") || name.includes("S23")) screen = '6.1" - 6.3" Super Retina XDR / AMOLED 120Hz';
+      else if (name.includes("NOTE") || name.includes("A55")) screen = '6.67" AMOLED FHD+ 120Hz';
 
-      // Detección de Cámara (Megapíxeles y cantidad de lentes)
       let cam = "50 MP + 2 MP (Doble Cámara)";
-      if (name.includes("S24 ULTRA") || name.includes("S23 ULTRA")) cam = "200 MP + 50 MP (Periscopio 5x) + 12 MP + 10 MP (Cuádruple Cámara Pro)";
-      else if (name.includes("IPHONE 15 PRO") || name.includes("IPHONE 14 PRO")) cam = "48 MP + 12 MP (Ultra Gran Angular) + 12 MP (Telefoto 3x) (Triple Cámara LiDAR)";
-      else if (name.includes("IPHONE 15") || name.includes("IPHONE 14") || name.includes("IPHONE 13")) cam = "48 MP / 12 MP + 12 MP (Doble Cámara Gran Angular)";
-      else if (name.includes("REDMI NOTE 13 PRO") || name.includes("200MP")) cam = "200 MP OIS + 8 MP + 2 MP (Triple Cámara con Estabilización Óptica)";
-      else if (name.includes("A55") || name.includes("A35") || name.includes("A54")) cam = "50 MP OIS + 12 MP Gran Angular + 5 MP Macro (Triple Cámara)";
+      if (name.includes("ULTRA")) cam = "200 MP + Telefoto Periscopio + Ultra Gran Angular";
+      else if (name.includes("PRO")) cam = "48 MP Pro + Ultra Gran Angular + Telefoto 3x/5x";
+      else if (name.includes("NOTE 13 PRO")) cam = "200 MP OIS + 8 MP + 2 MP";
 
-      // Detección de Memoria RAM
       let ram = "4 GB - 6 GB RAM";
-      if (name.includes("ULTRA") || name.includes("PRO MAX") || name.includes("S24")) ram = "8 GB - 12 GB RAM Físicos";
+      if (name.includes("ULTRA") || name.includes("PRO MAX")) ram = "12 GB - 16 GB RAM";
       else if (name.includes("IPHONE")) ram = "6 GB - 8 GB RAM Apple Unified";
-      else if (name.includes("A55") || name.includes("NOTE 13 PRO")) ram = "8 GB RAM";
 
-      // Recomendación Comercial / Perfil de Uso
       let usage = "Uso cotidiano, redes sociales, llamadas, WhatsApp y navegación constante.";
       let usageBadge = "Uso General & Redes";
       let badgeColor = "bg-slate-100 text-slate-700";
 
-      if (name.includes("ULTRA") || name.includes("PRO MAX") || name.includes("IPHONE 15 PRO") || name.includes("S24") || name.includes("S23")) {
-        usage = "🔥 Excelente para Fotografía Profesional, Video en 4K/8K, Gaming Pesado (Call of Duty, Roblox alto) y Múltiples tareas exigentes.";
-        usageBadge = "Gaming Top & Fotos 4K";
+      if (name.includes("ULTRA") || name.includes("PRO MAX") || name.includes("PRO")) {
+        usage = "🔥 Excelente para Fotografía Profesional, Video 4K/8K, Gaming Pesado y multitarea exigente.";
+        usageBadge = "Gaming Top & Fotos Pro";
         badgeColor = "bg-purple-100 text-purple-700 border-purple-200";
-      } else if (name.includes("NOTE 13 PRO") || name.includes("A55") || name.includes("A35") || name.includes("A54")) {
-        usage = "📸 Destacado en Fotografía Nocturna, Pantalla AMOLED fluida para videos/películas y excelente autonomía de batería para juegos intermedios.";
-        usageBadge = "Fotos Nítidas & Pantalla Premium";
+      } else if (name.includes("NOTE") || name.includes("A55") || name.includes("A35")) {
+        usage = "📸 Destacado en Fotografía, Pantalla AMOLED fluida para streaming y excelente batería.";
+        usageBadge = "Fotos Nítidas & Multimedia";
         badgeColor = "bg-blue-100 text-blue-700 border-blue-200";
-      } else if (name.includes("A05") || name.includes("A15") || name.includes("REDMI 13") || name.includes("REDMI 12")) {
-        usage = "🔋 Ideal para trabajo diario, batería de larga duración, llamadas, apps de mensajería, Uber y consumo de contenido visual.";
-        usageBadge = "Batería Duradera & Trabajo";
-        badgeColor = "bg-emerald-100 text-emerald-700 border-emerald-200";
       }
 
       return { proc, screen, cam, ram, usage, usageBadge, badgeColor };
@@ -272,8 +249,6 @@
             parsed.push({
               sku: sku,
               desc: desc,
-              priceOffer: "-",
-              priceReg: "-",
               memory: mem,
               disponible: stock
             });
@@ -285,50 +260,6 @@
         inventory = parsed;
         renderTable();
       }
-    }
-
-    function handlePriceFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const data = new Uint8Array(evt.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-
-        syncedPrices = {};
-
-        jsonData.forEach(row => {
-          if (row.length >= 2) {
-            const sku = String(row[0]).trim();
-            const offer = parseInt(String(row[1]).replace(/\D/g, ''), 10);
-            const reg = row[2] ? parseInt(String(row[2]).replace(/\D/g, ''), 10) : offer;
-
-            if (sku && !isNaN(offer)) {
-              syncedPrices[sku] = { offer: offer, regular: reg };
-            }
-          }
-        });
-
-        applySyncedPrices();
-        document.getElementById('priceStatus').innerText = "Precios Cargados desde Archivo";
-        alert(`¡Éxito! Se cargaron los precios para ${Object.keys(syncedPrices).length} SKUs.`);
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    function applySyncedPrices() {
-      if (!syncedPrices || Object.keys(syncedPrices).length === 0) return;
-      
-      inventory.forEach(item => {
-        if (syncedPrices[item.sku]) {
-          item.priceOffer = syncedPrices[item.sku].offer;
-          item.priceReg = syncedPrices[item.sku].regular;
-        }
-      });
-      renderTable();
     }
 
     function toggleCompare(sku) {
@@ -366,7 +297,7 @@
 
     function openCompareModal() {
       if (selectedForCompare.length < 2) {
-        alert("Por favor selecciona 2 equipos para poder realizar la comparación.");
+        alert("Por favor selecciona 2 equipos para realizar la comparación.");
         return;
       }
 
@@ -378,11 +309,8 @@
       const specs1 = getTechSpecs(item1.desc);
       const specs2 = getTechSpecs(item2.desc);
 
-      const formatPrice = (p) => typeof p === 'number' ? `$ ${p.toLocaleString('es-CL')}` : p;
-
       const container = document.getElementById('compareContent');
       container.innerHTML = `
-        <!-- EQUIPO 1 -->
         <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4 shadow-sm flex flex-col justify-between">
           <div class="space-y-3">
             <div class="flex justify-between items-center">
@@ -390,19 +318,7 @@
               <span class="text-[10px] font-bold border px-2 py-0.5 rounded-full ${specs1.badgeColor}">${specs1.usageBadge}</span>
             </div>
             <h3 class="font-bold text-slate-900 text-base leading-snug">${item1.desc}</h3>
-            
-            <div class="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center">
-              <div>
-                <p class="text-[10px] text-slate-400 uppercase font-bold">Precio Oferta</p>
-                <p class="text-lg font-black text-blue-600">${formatPrice(item1.priceOffer)}</p>
-              </div>
-              <div class="text-right">
-                <p class="text-[10px] text-slate-400 uppercase font-bold">Precio Lista</p>
-                <p class="text-xs text-slate-400 line-through font-semibold">${formatPrice(item1.priceReg)}</p>
-              </div>
-            </div>
 
-            <!-- FICHA TÉCNICA DETALLADA -->
             <div class="space-y-2.5 pt-2 text-xs">
               <div class="flex items-start space-x-2">
                 <i data-lucide="cpu" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
@@ -410,7 +326,7 @@
               </div>
               <div class="flex items-start space-x-2">
                 <i data-lucide="hard-drive" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">Memoria RAM / Almacenamiento:</span> <span class="text-slate-600">${specs1.ram} | ${item1.memory}</span></div>
+                <div><span class="font-bold text-slate-700">RAM / Capacidad:</span> <span class="text-slate-600">${specs1.ram} | ${item1.memory}</span></div>
               </div>
               <div class="flex items-start space-x-2">
                 <i data-lucide="camera" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
@@ -423,7 +339,6 @@
             </div>
           </div>
 
-          <!-- RECOMENDACIÓN DE USO COMERCIAL -->
           <div class="bg-blue-50/80 p-3.5 rounded-xl border border-blue-100 text-xs mt-4">
             <p class="font-bold text-blue-900 mb-1 flex items-center gap-1">
               <i data-lucide="target" class="w-3.5 h-3.5 text-blue-600"></i>
@@ -433,7 +348,6 @@
           </div>
         </div>
 
-        <!-- EQUIPO 2 -->
         <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4 shadow-sm flex flex-col justify-between">
           <div class="space-y-3">
             <div class="flex justify-between items-center">
@@ -441,19 +355,7 @@
               <span class="text-[10px] font-bold border px-2 py-0.5 rounded-full ${specs2.badgeColor}">${specs2.usageBadge}</span>
             </div>
             <h3 class="font-bold text-slate-900 text-base leading-snug">${item2.desc}</h3>
-            
-            <div class="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center">
-              <div>
-                <p class="text-[10px] text-slate-400 uppercase font-bold">Precio Oferta</p>
-                <p class="text-lg font-black text-blue-600">${formatPrice(item2.priceOffer)}</p>
-              </div>
-              <div class="text-right">
-                <p class="text-[10px] text-slate-400 uppercase font-bold">Precio Lista</p>
-                <p class="text-xs text-slate-400 line-through font-semibold">${formatPrice(item2.priceReg)}</p>
-              </div>
-            </div>
 
-            <!-- FICHA TÉCNICA DETALLADA -->
             <div class="space-y-2.5 pt-2 text-xs">
               <div class="flex items-start space-x-2">
                 <i data-lucide="cpu" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
@@ -461,7 +363,7 @@
               </div>
               <div class="flex items-start space-x-2">
                 <i data-lucide="hard-drive" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">Memoria RAM / Almacenamiento:</span> <span class="text-slate-600">${specs2.ram} | ${item2.memory}</span></div>
+                <div><span class="font-bold text-slate-700">RAM / Capacidad:</span> <span class="text-slate-600">${specs2.ram} | ${item2.memory}</span></div>
               </div>
               <div class="flex items-start space-x-2">
                 <i data-lucide="camera" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
@@ -474,7 +376,6 @@
             </div>
           </div>
 
-          <!-- RECOMENDACIÓN DE USO COMERCIAL -->
           <div class="bg-amber-50/80 p-3.5 rounded-xl border border-amber-100 text-xs mt-4">
             <p class="font-bold text-amber-900 mb-1 flex items-center gap-1">
               <i data-lucide="target" class="w-3.5 h-3.5 text-amber-600"></i>
@@ -512,9 +413,7 @@
         if (isAvailable) inStock++; else outStock++;
 
         const isChecked = selectedForCompare.includes(item.sku);
-
-        const offerStr = typeof item.priceOffer === 'number' ? `$ ${item.priceOffer.toLocaleString('es-CL')}` : item.priceOffer;
-        const regStr = typeof item.priceReg === 'number' ? `$ ${item.priceReg.toLocaleString('es-CL')}` : item.priceReg;
+        const entelUrl = generateEntelUrl(item.desc);
 
         const tr = document.createElement('tr');
         tr.className = `hover:bg-slate-50/80 transition-colors ${isChecked ? 'bg-blue-50/50' : ''}`;
@@ -530,29 +429,25 @@
               <button onclick="copyText('${item.sku}')" class="p-0.5 hover:text-blue-600 border rounded bg-white" title="Copiar SKU"><i data-lucide="copy" class="w-2.5 h-2.5"></i></button>
             </div>
           </td>
-          <td class="p-3 text-right font-bold text-slate-900">
-            ${offerStr}
-            ${typeof item.priceOffer === 'number' ? `<button onclick="copyText('${item.priceOffer}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>` : ''}
-          </td>
-          <td class="p-3 text-right text-slate-400">
-            ${regStr}
-            ${typeof item.priceReg === 'number' ? `<button onclick="copyText('${item.priceReg}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>` : ''}
-          </td>
-          <td class="p-3 text-center text-slate-600">
+          <td class="p-3 text-center text-slate-600 font-semibold">
             ${item.memory}
-            <button onclick="copyText('${item.memory}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>
           </td>
           <td class="p-3 text-center font-bold text-slate-800">
             ${item.disponible}
-            <button onclick="copyText('${item.disponible}')" class="p-1 hover:text-blue-600 border rounded bg-white inline-block ml-1"><i data-lucide="copy" class="w-3 h-3"></i></button>
           </td>
           <td class="p-3 text-center">
             ${isAvailable ? 
               `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-200">Disponible</span>` : 
               `<span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full border border-red-200">Sin Stock</span>`}
           </td>
+          <td class="p-3 text-center">
+            <a href="${entelUrl}" target="_blank" class="inline-flex items-center space-x-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] px-3 py-1.5 rounded-lg shadow-sm transition-all">
+              <span>Ver en Entel</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </td>
           <td class="p-3 text-center text-slate-400">
-            <button onclick="copyText('${item.desc}')" class="p-1 hover:text-blue-600 rounded"><i data-lucide="copy" class="w-4 h-4"></i></button>
+            <button onclick="copyText('${item.desc}')" class="p-1 hover:text-blue-600 rounded" title="Copiar Nombre"><i data-lucide="copy" class="w-4 h-4"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
