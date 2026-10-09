@@ -1,25 +1,47 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
+function cleanDescription(desc) {
+  if (!desc) return '';
+  return desc
+    .replace(/^APL\s+/i, '')
+    .replace(/^APPLE\s+/i, '')
+    .replace(/\bREAC\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 async function run() {
-  console.log("Iniciando navegador headless para extraer precios de Entel...");
+  console.log("Iniciando scraper de precios de Entel...");
   
   let htmlData = '';
   if (fs.existsSync('qry_ESIMPD1_stock.html')) {
     htmlData = fs.readFileSync('qry_ESIMPD1_stock.html', 'utf8');
   }
 
-  const skus = [];
-  const regex = /<td[^>]*>([A-Z0-9_\s-]+)<\/td>/gi;
+  const items = [];
+  const regexRow = /<tr[^>]*>[\s\S]*?<\/tr>/gi;
   let match;
-  while ((match = regex.exec(htmlData)) !== null) {
-    const val = match[1].trim();
-    if (val && !val.includes("ITEM_ID") && val.length < 30) {
-      if (!skus.includes(val)) skus.push(val);
+  
+  while ((match = regexRow.exec(htmlData)) !== null) {
+    const rowHtml = match[0];
+    const cells = [];
+    const regexCell = /<td[^>]*>([\s\S]*?)<\/td>/gi;
+    let cMatch;
+    while ((cMatch = regexCell.exec(rowHtml)) !== null) {
+      cells.push(cMatch[1].replace(/<[^>]+>/g, '').trim());
+    }
+
+    if (cells.length >= 2) {
+      const sku = cells[0];
+      const desc = cells[1];
+      if (sku && sku !== 'ITEM_ID' && !desc.toLowerCase().includes('sim card') && !desc.toLowerCase().includes('habilitacion')) {
+        items.push({ sku, desc });
+      }
     }
   }
 
-  console.log(`Se encontraron ${skus.length} SKUs para consultar.`);
+  console.log(`Se encontraron ${items.length} equipos para procesar.`);
 
   const browser = await puppeteer.launch({
     headless: "new",
@@ -30,20 +52,23 @@ async function run() {
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
   const resultPrices = {};
-  const itemsToProcess = skus.slice(0, 15);
 
-  for (const item of itemsToProcess) {
+  // Procesar una muestra amplia de equipos (los primeros 50)
+  const toProcess = items.slice(0, 50);
+
+  for (const item of toProcess) {
     try {
-      const url = `https://miportal.entel.cl/personas/catalogo/equipos?q=${encodeURIComponent(item)}`;
-      console.log(`Consultando: ${item}...`);
-      await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-
-      // Esperar 2 segundos utilizando setTimeout estándar
+      const cleanSearch = cleanDescription(item.desc);
+      const url = `https://miportal.entel.cl/personas/catalogo/equipos?q=${encodeURIComponent(cleanSearch)}`;
+      console.log(`Buscando SKU ${item.sku} ("${cleanSearch}")...`);
+      
+      await page.goto(url, { waitUntil: 'networkidle2', timeout: 25000 });
       await new Promise(r => setTimeout(r, 2000));
 
       const priceData = await page.evaluate(() => {
-        const offerEl = document.querySelector('.price-offer, .precio-oferta, [data-price-offer], .price');
-        const regEl = document.querySelector('.price-regular, .precio-lista, [data-price-regular]');
+        // Selectores de precios en Entel
+        const offerEl = document.querySelector('.price-offer, .precio-oferta, [data-price-offer], .price, .offer-price, .p-offer');
+        const regEl = document.querySelector('.price-regular, .precio-lista, [data-price-regular], .regular-price, .p-regular');
         
         const offer = offerEl ? parseInt(offerEl.textContent.replace(/\D/g, ''), 10) : null;
         const regular = regEl ? parseInt(regEl.textContent.replace(/\D/g, ''), 10) : null;
@@ -52,20 +77,20 @@ async function run() {
       });
 
       if (priceData.offer) {
-        resultPrices[item] = priceData;
-        console.log(`✓ Encontrado: ${item} -> Oferta: $${priceData.offer}`);
+        resultPrices[item.sku] = priceData;
+        console.log(`✓ Encontrado: ${item.sku} -> Oferta: $${priceData.offer}`);
       } else {
-        console.log(`- Sin precio en catálogo web: ${item}`);
+        console.log(`- Sin precio público para: ${item.sku}`);
       }
     } catch (err) {
-      console.log(`x Error al consultar ${item}:`, err.message);
+      console.log(`x Error en ${item.sku}:`, err.message);
     }
   }
 
   await browser.close();
 
   fs.writeFileSync('precios.json', JSON.stringify(resultPrices, null, 2));
-  console.log("Archivo precios.json generado con éxito.");
+  console.log("Archivo precios.json generado con éxito:", Object.keys(resultPrices).length, "precios obtenidos.");
 }
 
 run();
