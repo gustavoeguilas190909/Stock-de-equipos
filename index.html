@@ -152,10 +152,10 @@
         if (response.ok) {
           syncedPrices = await response.json();
           applySyncedPrices();
-          document.getElementById('priceStatus').innerText = "Precios Entel Actualizados";
+          document.getElementById('priceStatus').innerText = "Precios Entel Sincronizados";
         }
       } catch(e) {
-        console.warn("Aún no se ha generado precios.json");
+        console.warn("Aún no se encuentra el archivo precios.json");
       }
     }
 
@@ -289,7 +289,7 @@
 
     async function syncEntelPrices() {
       await loadPricesJSON();
-      alert("Precios recargados desde el repositorio.");
+      alert("Precios actualizados desde el archivo sincronizado.");
     }
   </script>
 </body>
