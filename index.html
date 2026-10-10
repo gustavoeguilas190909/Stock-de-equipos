@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -92,7 +92,7 @@
               <th class="p-3 text-center">Memoria Interna</th>
               <th class="p-3 text-center">Disponible</th>
               <th class="p-3 text-center">Estado Stock</th>
-              <th class="p-3 text-center">Ficha & Precios Entel</th>
+              <th class="p-3 text-center">Buscar Ficha Entel</th>
               <th class="p-3 text-center">Copiar</th>
             </tr>
           </thead>
@@ -175,15 +175,15 @@
     }
 
     function generateEntelUrl(desc) {
-      let clean = desc.toLowerCase()
-        .replace(/^apl\s+/i, '')
-        .replace(/^apple\s+/i, '')
-        .replace(/^samsung\s+/i, '')
-        .replace(/\breac\b/gi, '')
+      let clean = desc
+        .replace(/^APL\s+/i, '')
+        .replace(/^APPLE\s+/i, '')
+        .replace(/^SAMSUNG\s+/i, '')
+        .replace(/\bREAC\b/gi, '')
         .trim();
 
-      const slug = clean.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      return `https://miportal.entel.cl/personas/celulares/${slug}`;
+      const query = encodeURIComponent(`site:miportal.entel.cl/personas/ ${clean}`);
+      return `https://www.google.com/search?q=${query}&btnI=1`;
     }
 
     function getTechSpecs(desc) {
@@ -192,14 +192,14 @@
       let proc = "Octa-Core Estándar";
       if (name.includes("IPHONE 18 PRO") || name.includes("IPHONE 17 PRO") || name.includes("IPHONE 16 PRO") || name.includes("IPHONE 15 PRO")) proc = "Apple A-Series Pro (3nm High-End)";
       else if (name.includes("IPHONE")) proc = "Apple A-Series Bionic";
-      else if (name.includes("S24 ULTRA") || name.includes("S25 ULTRA")) proc = "Snapdragon 8 Gen High-Performance";
-      else if (name.includes("S24") || name.includes("S23")) proc = "Exynos / Snapdragon High-End";
+      else if (name.includes("S24 ULTRA") || name.includes("S26 ULTRA")) proc = "Snapdragon 8 Gen High-Performance";
+      else if (name.includes("S24") || name.includes("S26") || name.includes("S23")) proc = "Exynos / Snapdragon High-End";
       else if (name.includes("A55") || name.includes("A54")) proc = "Exynos 1480 (Gama Media Alta)";
       else if (name.includes("REDMI NOTE")) proc = "Snapdragon / Dimensity Gaming";
 
       let screen = '6.5" FHD+ LCD 90Hz';
       if (name.includes("ULTRA") || name.includes("PRO MAX")) screen = '6.8" Dynamic AMOLED 2X 120Hz (Quad HD+)';
-      else if (name.includes("PRO") || name.includes("S24") || name.includes("S23")) screen = '6.1" - 6.3" Super Retina XDR / AMOLED 120Hz';
+      else if (name.includes("PRO") || name.includes("S24") || name.includes("S26")) screen = '6.1" - 6.3" Super Retina XDR / AMOLED 120Hz';
       else if (name.includes("NOTE") || name.includes("A55")) screen = '6.67" AMOLED FHD+ 120Hz';
 
       let cam = "50 MP + 2 MP (Doble Cámara)";
@@ -442,7 +442,7 @@
           </td>
           <td class="p-3 text-center">
             <a href="${entelUrl}" target="_blank" class="inline-flex items-center space-x-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] px-3 py-1.5 rounded-lg shadow-sm transition-all">
-              <span>Ver en Entel</span>
+              <span>Buscar en Entel</span>
               <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
             </a>
           </td>
