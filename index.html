@@ -1,4 +1,4 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -92,7 +92,7 @@
               <th class="p-3 text-center">Memoria Interna</th>
               <th class="p-3 text-center">Disponible</th>
               <th class="p-3 text-center">Estado Stock</th>
-              <th class="p-3 text-center">Buscar Ficha Entel</th>
+              <th class="p-3 text-center">Buscar en Entel</th>
               <th class="p-3 text-center">Copiar</th>
             </tr>
           </thead>
@@ -182,8 +182,8 @@
         .replace(/\bREAC\b/gi, '')
         .trim();
 
-      const query = encodeURIComponent(`site:miportal.entel.cl/personas/ ${clean}`);
-      return `https://www.google.com/search?q=${query}&btnI=1`;
+      const query = encodeURIComponent(clean);
+      return `https://www.google.com/search?q=site:miportal.entel.cl/personas/+${query}`;
     }
 
     function getTechSpecs(desc) {
