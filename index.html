@@ -69,9 +69,9 @@
         <div>
           <label class="block text-xs font-bold text-slate-600 mb-1">Ordenar por</label>
           <select id="filterSort" onchange="renderTable()" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="default">Predeterminado</option>
-            <option value="stock-desc">Mayor Stock</option>
-            <option value="stock-asc">Menor Stock</option>
+            <option value="stock-desc" selected>Mayor Stock Primero</option>
+            <option value="stock-asc">Menor Stock Primero</option>
+            <option value="default">Orden Predeterminado</option>
           </select>
         </div>
       </div>
@@ -89,7 +89,7 @@
             <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
               <th class="p-3 text-center w-12">Comparar</th>
               <th class="p-3 text-center">SKU</th>
-              <th class="p-3">Descripción del Equipo</th>
+              <th class="p-3">Descripción / Información del Equipo</th>
               <th class="p-3 text-center">Cantidad</th>
               <th class="p-3 text-center">Estado Stock</th>
               <th class="p-3 text-center">Enlace Entel</th>
@@ -276,9 +276,20 @@
             const mMatch = desc.match(/(\d+\s*(?:GB|TB))/i);
             if (mMatch) mem = mMatch[1].toUpperCase();
 
+            // Detectar marca automáticamente
+            let brand = "GENERAL";
+            const upper = desc.toUpperCase();
+            if (upper.includes("IPHONE") || upper.includes("APPLE") || upper.includes("APL")) brand = "APPLE";
+            else if (upper.includes("SAMSUNG") || upper.includes("GALAXY")) brand = "SAMSUNG";
+            else if (upper.includes("XIAOMI") || upper.includes("REDMI") || upper.includes("POCO")) brand = "XIAOMI";
+            else if (upper.includes("HONOR")) brand = "HONOR";
+            else if (upper.includes("MOTOROLA") || upper.includes("MOTO")) brand = "MOTOROLA";
+            else if (upper.includes("VIVO")) brand = "VIVO";
+
             parsed.push({
               sku: sku,
               desc: desc,
+              brand: brand,
               memory: mem,
               disponible: stock
             });
@@ -486,8 +497,12 @@
 
       let filtered = inventory.filter(i => i.desc.toLowerCase().includes(descFilter) || i.sku.toLowerCase().includes(descFilter));
 
-      if (sort === 'stock-desc') filtered.sort((a,b) => b.disponible - a.disponible);
-      if (sort === 'stock-asc') filtered.sort((a,b) => a.disponible - b.disponible);
+      // Ordenar por defecto de mayor a menor stock
+      if (sort === 'stock-asc') {
+        filtered.sort((a,b) => a.disponible - b.disponible);
+      } else if (sort === 'stock-desc' || sort === 'default') {
+        filtered.sort((a,b) => b.disponible - a.disponible);
+      }
 
       tbody.innerHTML = '';
       let inStock = 0, outStock = 0;
@@ -518,18 +533,24 @@
             </div>
           </td>
 
-          <!-- 3. Descripción + Copiar -->
+          <!-- 3. Descripción detallada con Marca y Memoria -->
           <td class="p-3">
-            <div class="font-bold text-slate-800 flex items-center gap-1.5">
-              <span>${item.desc}</span>
-              <button onclick="copyText('${item.desc}')" class="p-0.5 hover:text-blue-600 border rounded bg-white shadow-xs shrink-0" title="Copiar Nombre">
-                <i data-lucide="copy" class="w-3 h-3"></i>
-              </button>
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 tracking-wider">${item.brand}</span>
+                ${item.memory !== 'N/A' ? `<span class="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded">${item.memory}</span>` : ''}
+              </div>
+              <div class="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
+                <span>${item.desc}</span>
+                <button onclick="copyText('${item.desc}')" class="p-0.5 hover:text-blue-600 border rounded bg-white shadow-xs shrink-0" title="Copiar Nombre">
+                  <i data-lucide="copy" class="w-3 h-3"></i>
+                </button>
+              </div>
             </div>
           </td>
 
           <!-- 4. Cantidad (Stock) -->
-          <td class="p-3 text-center font-bold text-slate-800">
+          <td class="p-3 text-center font-extrabold text-slate-900 text-sm">
             ${item.disponible}
           </td>
 
