@@ -3,101 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inventario & Consultor de Equipos Entel</title>
+  <title>Control de Inventario & Fichas Entel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 min-h-screen p-4 md:p-6 text-slate-800 font-sans pb-24">
+<body class="bg-slate-100/70 min-h-screen p-4 md:p-8 text-slate-800 font-sans pb-28">
   <div class="max-w-7xl mx-auto space-y-6">
     
-    <!-- ENCABEZADO -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="bg-blue-600 p-2.5 rounded-lg text-white">
-          <i data-lucide="box" class="w-6 h-6"></i>
+    <!-- ENCABEZADO PRINCIPAL -->
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex items-center space-x-3.5">
+        <div class="bg-slate-900 p-3 rounded-xl text-white shadow-sm">
+          <i data-lucide="layers" class="w-6 h-6"></i>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-slate-900">Control de Información</h1>
-          <p class="text-xs text-slate-500">Inventario de Stock & Enlace Directo a Entel.cl</p>
+          <h1 class="text-lg font-bold text-slate-900 tracking-tight">Portal de Inventario & Fichas Técnicas</h1>
+          <p class="text-xs text-slate-500 font-medium">Gestión de Stock de Equipos y Consulta en Entel.cl</p>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <label class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer flex items-center space-x-1.5 transition-all shadow-sm">
-          <i data-lucide="file-plus" class="w-4 h-4"></i>
-          <span>Actualizar Stock (HTML)</span>
+      <div class="flex items-center space-x-3 w-full md:w-auto">
+        <label class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl cursor-pointer flex items-center justify-center space-x-2 transition-all shadow-sm">
+          <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+          <span>Cargar Stock (HTML)</span>
           <input type="file" id="fileInput" accept=".html,.htm" class="hidden" onchange="handleFileUpload(event)">
         </label>
       </div>
     </div>
 
-    <!-- TARJETAS DE MÉTRICAS -->
+    <!-- TARJETAS DE MÉTRICAS EJECUTIVAS -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-        <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="package" class="w-6 h-6"></i></div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+        <div class="p-3 bg-slate-100 text-slate-700 rounded-lg"><i data-lucide="package" class="w-5 h-5"></i></div>
         <div>
-          <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Total Productos</p>
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total de Productos</p>
           <h3 id="mTotal" class="text-2xl font-bold text-slate-900">0</h3>
         </div>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+        <div class="p-3 bg-emerald-50 text-emerald-700 rounded-lg"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
         <div>
-          <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Con Stock Disponible</p>
-          <h3 id="mAvailable" class="text-2xl font-bold text-emerald-600">0</h3>
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Con Stock Disponible</p>
+          <h3 id="mAvailable" class="text-2xl font-bold text-emerald-700">0</h3>
         </div>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-        <div class="p-3 bg-red-50 text-red-500 rounded-lg"><i data-lucide="alert-triangle" class="w-6 h-6"></i></div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+        <div class="p-3 bg-rose-50 text-rose-600 rounded-lg"><i data-lucide="alert-circle" class="w-5 h-5"></i></div>
         <div>
-          <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Sin Stock (En Tope)</p>
-          <h3 id="mOutOfStock" class="text-2xl font-bold text-red-500">0</h3>
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Sin Stock / Bajo Tope</p>
+          <h3 id="mOutOfStock" class="text-2xl font-bold text-rose-600">0</h3>
         </div>
       </div>
     </div>
 
-    <!-- FILTROS -->
-    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+    <!-- PANEL DE BÚSQUEDA Y FILTROS -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm space-y-3">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">Descripción / Modelo / SKU</label>
-          <input type="text" id="filterDesc" placeholder="Buscar por modelo o SKU..." oninput="renderTable()" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Búsqueda Rápida</label>
+          <div class="relative">
+            <input type="text" id="filterDesc" placeholder="Buscar por modelo, marca o SKU..." oninput="renderTable()" class="w-full text-xs p-2.5 pl-8 bg-slate-50/70 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800 placeholder-slate-400">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5"></i>
+          </div>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">Stock (Tope Mínimo)</label>
-          <input type="number" id="filterStockLimit" value="2" min="0" oninput="renderTable()" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Tope Mínimo de Stock</label>
+          <input type="number" id="filterStockLimit" value="2" min="0" oninput="renderTable()" class="w-full text-xs p-2.5 bg-slate-50/70 border border-slate-200 rounded-lg font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800">
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">Ordenar por</label>
-          <select id="filterSort" onchange="renderTable()" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Orden de Visualización</label>
+          <select id="filterSort" onchange="renderTable()" class="w-full text-xs p-2.5 bg-slate-50/70 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800">
             <option value="stock-desc" selected>Mayor Stock Primero</option>
             <option value="stock-asc">Menor Stock Primero</option>
-            <option value="default">Orden Predeterminado</option>
+            <option value="default">Predeterminado</option>
           </select>
         </div>
       </div>
       <div class="flex justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-100">
-        <span id="recordCount">Mostrando 0 registros</span>
-        <span id="updateTime" class="text-emerald-600 font-medium">Cargando inventario...</span>
+        <span id="recordCount" class="font-medium text-slate-600">Mostrando 0 registros</span>
+        <span id="updateTime" class="text-emerald-700 font-medium flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+          Cargando inventario...
+        </span>
       </div>
     </div>
 
-    <!-- TABLA DE EQUIPOS -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <!-- TABLA PRINCIPAL DE INVENTARIO -->
+    <div class="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-              <th class="p-3 text-center w-12">Comparar</th>
-              <th class="p-3 text-center">SKU</th>
-              <th class="p-3">Descripción / Información del Equipo</th>
-              <th class="p-3 text-center">Cantidad</th>
-              <th class="p-3 text-center">Estado Stock</th>
-              <th class="p-3 text-center">Enlace Entel</th>
-              <th class="p-3 text-center">Ficha Técnica</th>
+            <tr class="bg-slate-50/90 border-b border-slate-200/80 text-slate-600 font-semibold uppercase tracking-wider">
+              <th class="p-3.5 text-center w-12">Comparar</th>
+              <th class="p-3.5 text-center">SKU</th>
+              <th class="p-3.5">Descripción / Información del Equipo</th>
+              <th class="p-3.5 text-center">Cantidad</th>
+              <th class="p-3.5 text-center">Estado Stock</th>
+              <th class="p-3.5 text-center">Enlace Entel</th>
+              <th class="p-3.5 text-center">Ficha Técnica</th>
             </tr>
           </thead>
           <tbody id="tableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
-            <!-- Cargado por JS -->
+            <!-- Renderizado dinámico vía JavaScript -->
           </tbody>
         </table>
       </div>
@@ -105,30 +111,30 @@
 
   </div>
 
-  <!-- BARRA FLOTANTE DE COMPARACIÓN DE EQUIPOS -->
-  <div id="compareBar" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center space-x-4 hidden z-40 border border-slate-700">
-    <span class="text-xs font-semibold" id="compareCount">0 de 2 equipos seleccionados</span>
-    <button onclick="openCompareModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-full transition-all flex items-center space-x-1 shadow-md">
+  <!-- BARRA FLOTANTE DE COMPARACIÓN -->
+  <div id="compareBar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-xl flex items-center space-x-4 hidden z-40 border border-slate-800">
+    <span class="text-xs font-medium text-slate-300" id="compareCount">0 de 2 equipos seleccionados</span>
+    <button onclick="openCompareModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 shadow-sm">
       <i data-lucide="arrow-right-left" class="w-3.5 h-3.5"></i>
-      <span>Comparar Ficha Técnica</span>
+      <span>Comparar Fichas</span>
     </button>
-    <button onclick="clearSelectedForCompare()" class="text-slate-400 hover:text-white text-xs underline ml-2">Limpiar</button>
+    <button onclick="clearSelectedForCompare()" class="text-slate-400 hover:text-slate-200 text-xs underline ml-2">Limpiar</button>
   </div>
 
   <!-- MODAL DE COMPARACIÓN TÉCNICA (2 EQUIPOS) -->
-  <div id="compareModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+  <div id="compareModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-6 relative border border-slate-200">
-      <div class="flex justify-between items-center border-b pb-4 sticky top-0 bg-white z-10">
-        <div class="flex items-center space-x-2">
-          <div class="p-2 bg-blue-100 text-blue-600 rounded-lg">
-            <i data-lucide="cpu" class="w-5 h-5"></i>
+      <div class="flex justify-between items-center border-b border-slate-100 pb-4 sticky top-0 bg-white z-10">
+        <div class="flex items-center space-x-2.5">
+          <div class="p-2 bg-slate-100 text-slate-700 rounded-lg">
+            <i data-lucide="arrow-right-left" class="w-5 h-5"></i>
           </div>
           <div>
             <h2 class="text-base font-bold text-slate-900">Comparativa Técnica y Comercial</h2>
             <p class="text-xs text-slate-500">Evaluación frente a frente para asesoría de ventas</p>
           </div>
         </div>
-        <button onclick="closeCompareModal()" class="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600">
+        <button onclick="closeCompareModal()" class="p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-all">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -137,8 +143,8 @@
         <!-- Renderizado dinámico -->
       </div>
 
-      <div class="flex justify-end pt-4 border-t sticky bottom-0 bg-white">
-        <button onclick="closeCompareModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all">
+      <div class="flex justify-end pt-4 border-t border-slate-100 sticky bottom-0 bg-white">
+        <button onclick="closeCompareModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition-all">
           Cerrar
         </button>
       </div>
@@ -146,19 +152,19 @@
   </div>
 
   <!-- MODAL DE FICHA TÉCNICA INDIVIDUAL (1 EQUIPO) -->
-  <div id="singleSpecsModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+  <div id="singleSpecsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-6 relative border border-slate-200">
-      <div class="flex justify-between items-center border-b pb-4">
-        <div class="flex items-center space-x-2">
-          <div class="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+        <div class="flex items-center space-x-2.5">
+          <div class="p-2 bg-slate-100 text-slate-700 rounded-lg">
             <i data-lucide="file-text" class="w-5 h-5"></i>
           </div>
           <div>
-            <h2 class="text-base font-bold text-slate-900">Características del Equipo</h2>
-            <p class="text-xs text-slate-500">Especificaciones técnicas principales</p>
+            <h2 class="text-base font-bold text-slate-900">Especificaciones del Producto</h2>
+            <p class="text-xs text-slate-500">Información técnica y perfil comercial</p>
           </div>
         </div>
-        <button onclick="closeSingleSpecsModal()" class="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600">
+        <button onclick="closeSingleSpecsModal()" class="p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-all">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -167,8 +173,8 @@
         <!-- Renderizado dinámico -->
       </div>
 
-      <div class="flex justify-end pt-4 border-t">
-        <button onclick="closeSingleSpecsModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all">
+      <div class="flex justify-end pt-4 border-t border-slate-100">
+        <button onclick="closeSingleSpecsModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition-all">
           Cerrar
         </button>
       </div>
@@ -192,7 +198,7 @@
           if (response.ok) {
             const htmlText = await response.text();
             parseHTMLContent(htmlText);
-            document.getElementById('updateTime').innerText = "Stock cargado desde servidor";
+            document.getElementById('updateTime').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Stock actualizado desde servidor`;
             return;
           }
         } catch(e) {}
@@ -219,43 +225,68 @@
     function getTechSpecs(desc) {
       const name = desc.toUpperCase();
 
+      const isSim = name.includes("SIM CARD") || name.includes("SIM") || name.includes("CHIP") || name.includes("ESIM");
+      const isAcc = name.includes("CABLE") || name.includes("CARGADOR") || name.includes("ADAPTADOR") || name.includes("FUNDA") || name.includes("LAMINA") || name.includes("AUDIFONO");
+
+      if (isSim) {
+        return {
+          isSimCard: true,
+          type: "SIM / Conectividad Móvil",
+          format: "Multi-corte (Standard, Micro, Nano SIM)",
+          network: name.includes("5G") ? "Red 5G / 4G LTE" : "Red 4G LTE",
+          usage: "Habilitación de línea, portabilidad, bolsas prepago y reemplazo de SIM.",
+          usageBadge: "SIM & Conectividad",
+          badgeColor: "bg-slate-100 text-slate-700 border-slate-200"
+        };
+      }
+
+      if (isAcc) {
+        return {
+          isAccessory: true,
+          type: "Accesorio Oficial",
+          usage: "Complemento y protección para equipos inteligentes.",
+          usageBadge: "Accesorio",
+          badgeColor: "bg-slate-100 text-slate-700 border-slate-200"
+        };
+      }
+
       let proc = "Octa-Core Estándar";
-      if (name.includes("IPHONE 18 PRO") || name.includes("IPHONE 17 PRO") || name.includes("IPHONE 16 PRO") || name.includes("IPHONE 15 PRO")) proc = "Apple A-Series Pro (3nm High-End)";
+      if (name.includes("IPHONE 18 PRO") || name.includes("IPHONE 17 PRO") || name.includes("IPHONE 16 PRO") || name.includes("IPHONE 15 PRO")) proc = "Apple A-Series Pro (3nm)";
       else if (name.includes("IPHONE")) proc = "Apple A-Series Bionic";
       else if (name.includes("S24 ULTRA") || name.includes("S26 ULTRA")) proc = "Snapdragon 8 Gen High-Performance";
       else if (name.includes("S24") || name.includes("S26") || name.includes("S23")) proc = "Exynos / Snapdragon High-End";
-      else if (name.includes("A55") || name.includes("A54")) proc = "Exynos 1480 (Gama Media Alta)";
-      else if (name.includes("REDMI NOTE")) proc = "Snapdragon / Dimensity Gaming";
+      else if (name.includes("A55") || name.includes("A54")) proc = "Exynos 1480";
+      else if (name.includes("REDMI NOTE")) proc = "Snapdragon / Dimensity";
 
       let screen = '6.5" FHD+ LCD 90Hz';
-      if (name.includes("ULTRA") || name.includes("PRO MAX")) screen = '6.8" Dynamic AMOLED 2X 120Hz (Quad HD+)';
-      else if (name.includes("PRO") || name.includes("S24") || name.includes("S26")) screen = '6.1" - 6.3" Super Retina XDR / AMOLED 120Hz';
+      if (name.includes("ULTRA") || name.includes("PRO MAX")) screen = '6.8" Dynamic AMOLED 2X 120Hz';
+      else if (name.includes("PRO") || name.includes("S24") || name.includes("S26")) screen = '6.1" - 6.3" Super Retina XDR / AMOLED';
       else if (name.includes("NOTE") || name.includes("A55")) screen = '6.67" AMOLED FHD+ 120Hz';
 
-      let cam = "50 MP + 2 MP (Doble Cámara)";
-      if (name.includes("ULTRA")) cam = "200 MP + Telefoto Periscopio + Ultra Gran Angular";
-      else if (name.includes("PRO")) cam = "48 MP Pro + Ultra Gran Angular + Telefoto 3x/5x";
+      let cam = "50 MP + 2 MP";
+      if (name.includes("ULTRA")) cam = "200 MP + Telefoto + Ultra Gran Angular";
+      else if (name.includes("PRO")) cam = "48 MP Pro + Ultra Gran Angular + Telefoto";
       else if (name.includes("NOTE 13 PRO")) cam = "200 MP OIS + 8 MP + 2 MP";
 
       let ram = "4 GB - 6 GB RAM";
       if (name.includes("ULTRA") || name.includes("PRO MAX")) ram = "12 GB - 16 GB RAM";
-      else if (name.includes("IPHONE")) ram = "6 GB - 8 GB RAM Apple Unified";
+      else if (name.includes("IPHONE")) ram = "6 GB - 8 GB RAM Unified";
 
-      let usage = "Uso cotidiano, redes sociales, llamadas, WhatsApp y navegación constante.";
-      let usageBadge = "Uso General & Redes";
-      let badgeColor = "bg-slate-100 text-slate-700";
+      let usage = "Navegación general, redes sociales, llamadas y WhatsApp.";
+      let usageBadge = "Uso Estándar";
+      let badgeColor = "bg-slate-100 text-slate-700 border-slate-200";
 
       if (name.includes("ULTRA") || name.includes("PRO MAX") || name.includes("PRO")) {
-        usage = "🔥 Excelente para Fotografía Profesional, Video 4K/8K, Gaming Pesado y multitarea exigente.";
-        usageBadge = "Gaming Top & Fotos Pro";
-        badgeColor = "bg-purple-100 text-purple-700 border-purple-200";
+        usage = "Fotografía profesional, video 4K, multitarea intensiva y juegos de alto rendimiento.";
+        usageBadge = "Gama Alta / Pro";
+        badgeColor = "bg-slate-900 text-white border-slate-900";
       } else if (name.includes("NOTE") || name.includes("A55") || name.includes("A35")) {
-        usage = "📸 Destacado en Fotografía, Pantalla AMOLED fluida para streaming y excelente batería.";
-        usageBadge = "Fotos Nítidas & Multimedia";
-        badgeColor = "bg-blue-100 text-blue-700 border-blue-200";
+        usage = "Excelente desempeño multimedia, pantalla fluida y alta autonomía de batería.";
+        usageBadge = "Gama Media Alta";
+        badgeColor = "bg-blue-50 text-blue-800 border-blue-200";
       }
 
-      return { proc, screen, cam, ram, usage, usageBadge, badgeColor };
+      return { isPhone: true, proc, screen, cam, ram, usage, usageBadge, badgeColor };
     }
 
     function parseHTMLContent(htmlText) {
@@ -276,10 +307,10 @@
             const mMatch = desc.match(/(\d+\s*(?:GB|TB))/i);
             if (mMatch) mem = mMatch[1].toUpperCase();
 
-            // Detectar marca automáticamente
             let brand = "GENERAL";
             const upper = desc.toUpperCase();
-            if (upper.includes("IPHONE") || upper.includes("APPLE") || upper.includes("APL")) brand = "APPLE";
+            if (upper.includes("SIM") || upper.includes("CHIP")) brand = "CHIP / SIM";
+            else if (upper.includes("IPHONE") || upper.includes("APPLE") || upper.includes("APL")) brand = "APPLE";
             else if (upper.includes("SAMSUNG") || upper.includes("GALAXY")) brand = "SAMSUNG";
             else if (upper.includes("XIAOMI") || upper.includes("REDMI") || upper.includes("POCO")) brand = "XIAOMI";
             else if (upper.includes("HONOR")) brand = "HONOR";
@@ -307,297 +338,3 @@
       const idx = selectedForCompare.indexOf(sku);
       if (idx > -1) {
         selectedForCompare.splice(idx, 1);
-      } else {
-        if (selectedForCompare.length >= 2) {
-          alert("Solo puedes seleccionar máximo 2 equipos simultáneamente para comparar.");
-          renderTable();
-          return;
-        }
-        selectedForCompare.push(sku);
-      }
-      updateCompareBar();
-      renderTable();
-    }
-
-    function clearSelectedForCompare() {
-      selectedForCompare = [];
-      updateCompareBar();
-      renderTable();
-    }
-
-    function updateCompareBar() {
-      const bar = document.getElementById('compareBar');
-      const countTxt = document.getElementById('compareCount');
-      if (selectedForCompare.length > 0) {
-        bar.classList.remove('hidden');
-        countTxt.innerText = `${selectedForCompare.length} de 2 equipos seleccionados`;
-      } else {
-        bar.classList.add('hidden');
-      }
-    }
-
-    function openSingleSpecs(sku) {
-      const item = inventory.find(i => i.sku === sku);
-      if (!item) return;
-
-      const specs = getTechSpecs(item.desc);
-      const container = document.getElementById('singleSpecsContent');
-
-      container.innerHTML = `
-        <div class="space-y-4">
-          <div class="flex justify-between items-start">
-            <div>
-              <span class="text-[10px] font-mono text-slate-400">SKU: ${item.sku}</span>
-              <h3 class="font-bold text-slate-900 text-base leading-snug">${item.desc}</h3>
-            </div>
-            <span class="text-[10px] font-bold border px-2 py-0.5 rounded-full shrink-0 ${specs.badgeColor}">${specs.usageBadge}</span>
-          </div>
-
-          <div class="space-y-2.5 pt-2 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <div class="flex items-start space-x-2">
-              <i data-lucide="cpu" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-              <div><span class="font-bold text-slate-700">Procesador:</span> <span class="text-slate-600">${specs.proc}</span></div>
-            </div>
-            <div class="flex items-start space-x-2">
-              <i data-lucide="hard-drive" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-              <div><span class="font-bold text-slate-700">RAM / Capacidad:</span> <span class="text-slate-600">${specs.ram} | ${item.memory}</span></div>
-            </div>
-            <div class="flex items-start space-x-2">
-              <i data-lucide="camera" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-              <div><span class="font-bold text-slate-700">Cámaras:</span> <span class="text-slate-600">${specs.cam}</span></div>
-            </div>
-            <div class="flex items-start space-x-2">
-              <i data-lucide="smartphone" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-              <div><span class="font-bold text-slate-700">Pantalla:</span> <span class="text-slate-600">${specs.screen}</span></div>
-            </div>
-          </div>
-
-          <div class="bg-indigo-50 p-3.5 rounded-xl border border-indigo-100 text-xs">
-            <p class="font-bold text-indigo-900 mb-1 flex items-center gap-1">
-              <i data-lucide="target" class="w-3.5 h-3.5 text-indigo-600"></i>
-              Perfil del Cliente Ideal
-            </p>
-            <p class="text-indigo-800 leading-relaxed">${specs.usage}</p>
-          </div>
-        </div>
-      `;
-
-      document.getElementById('singleSpecsModal').classList.remove('hidden');
-      lucide.createIcons();
-    }
-
-    function closeSingleSpecsModal() {
-      document.getElementById('singleSpecsModal').classList.add('hidden');
-    }
-
-    function openCompareModal() {
-      if (selectedForCompare.length < 2) {
-        alert("Por favor selecciona 2 equipos para realizar la comparación.");
-        return;
-      }
-
-      const item1 = inventory.find(i => i.sku === selectedForCompare[0]);
-      const item2 = inventory.find(i => i.sku === selectedForCompare[1]);
-
-      if (!item1 || !item2) return;
-
-      const specs1 = getTechSpecs(item1.desc);
-      const specs2 = getTechSpecs(item2.desc);
-
-      const container = document.getElementById('compareContent');
-      container.innerHTML = `
-        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4 shadow-sm flex flex-col justify-between">
-          <div class="space-y-3">
-            <div class="flex justify-between items-center">
-              <span class="bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">Equipo 1</span>
-              <span class="text-[10px] font-bold border px-2 py-0.5 rounded-full ${specs1.badgeColor}">${specs1.usageBadge}</span>
-            </div>
-            <h3 class="font-bold text-slate-900 text-base leading-snug">${item1.desc}</h3>
-
-            <div class="space-y-2.5 pt-2 text-xs">
-              <div class="flex items-start space-x-2">
-                <i data-lucide="cpu" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">Procesador:</span> <span class="text-slate-600">${specs1.proc}</span></div>
-              </div>
-              <div class="flex items-start space-x-2">
-                <i data-lucide="hard-drive" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">RAM / Capacidad:</span> <span class="text-slate-600">${specs1.ram} | ${item1.memory}</span></div>
-              </div>
-              <div class="flex items-start space-x-2">
-                <i data-lucide="camera" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">Cámaras:</span> <span class="text-slate-600">${specs1.cam}</span></div>
-              </div>
-              <div class="flex items-start space-x-2">
-                <i data-lucide="smartphone" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">Pantalla:</span> <span class="text-slate-600">${specs1.screen}</span></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-blue-50/80 p-3.5 rounded-xl border border-blue-100 text-xs mt-4">
-            <p class="font-bold text-blue-900 mb-1 flex items-center gap-1">
-              <i data-lucide="target" class="w-3.5 h-3.5 text-blue-600"></i>
-              ¿Para quién está destinado?
-            </p>
-            <p class="text-blue-800 leading-relaxed">${specs1.usage}</p>
-          </div>
-        </div>
-
-        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4 shadow-sm flex flex-col justify-between">
-          <div class="space-y-3">
-            <div class="flex justify-between items-center">
-              <span class="bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">Equipo 2</span>
-              <span class="text-[10px] font-bold border px-2 py-0.5 rounded-full ${specs2.badgeColor}">${specs2.usageBadge}</span>
-            </div>
-            <h3 class="font-bold text-slate-900 text-base leading-snug">${item2.desc}</h3>
-
-            <div class="space-y-2.5 pt-2 text-xs">
-              <div class="flex items-start space-x-2">
-                <i data-lucide="cpu" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">Procesador:</span> <span class="text-slate-600">${specs2.proc}</span></div>
-              </div>
-              <div class="flex items-start space-x-2">
-                <i data-lucide="hard-drive" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">RAM / Capacidad:</span> <span class="text-slate-600">${specs2.ram} | ${item2.memory}</span></div>
-              </div>
-              <div class="flex items-start space-x-2">
-                <i data-lucide="camera" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">Cámaras:</span> <span class="text-slate-600">${specs2.cam}</span></div>
-              </div>
-              <div class="flex items-start space-x-2">
-                <i data-lucide="smartphone" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
-                <div><span class="font-bold text-slate-700">Pantalla:</span> <span class="text-slate-600">${specs2.screen}</span></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-amber-50/80 p-3.5 rounded-xl border border-amber-100 text-xs mt-4">
-            <p class="font-bold text-amber-900 mb-1 flex items-center gap-1">
-              <i data-lucide="target" class="w-3.5 h-3.5 text-amber-600"></i>
-              ¿Para quién está destinado?
-            </p>
-            <p class="text-amber-800 leading-relaxed">${specs2.usage}</p>
-          </div>
-        </div>
-      `;
-
-      document.getElementById('compareModal').classList.remove('hidden');
-      lucide.createIcons();
-    }
-
-    function closeCompareModal() {
-      document.getElementById('compareModal').classList.add('hidden');
-    }
-
-    function renderTable() {
-      const tbody = document.getElementById('tableBody');
-      const descFilter = document.getElementById('filterDesc').value.toLowerCase();
-      const limit = parseInt(document.getElementById('filterStockLimit').value) || 0;
-      const sort = document.getElementById('filterSort').value;
-
-      let filtered = inventory.filter(i => i.desc.toLowerCase().includes(descFilter) || i.sku.toLowerCase().includes(descFilter));
-
-      // Ordenar por defecto de mayor a menor stock
-      if (sort === 'stock-asc') {
-        filtered.sort((a,b) => a.disponible - b.disponible);
-      } else if (sort === 'stock-desc' || sort === 'default') {
-        filtered.sort((a,b) => b.disponible - a.disponible);
-      }
-
-      tbody.innerHTML = '';
-      let inStock = 0, outStock = 0;
-
-      filtered.forEach(item => {
-        const isAvailable = item.disponible >= limit;
-        if (isAvailable) inStock++; else outStock++;
-
-        const isChecked = selectedForCompare.includes(item.sku);
-        const entelUrl = generateEntelUrl(item.desc);
-
-        const tr = document.createElement('tr');
-        tr.className = `hover:bg-slate-50/80 transition-colors ${isChecked ? 'bg-blue-50/50' : ''}`;
-
-        tr.innerHTML = `
-          <!-- 1. Comparar -->
-          <td class="p-3 text-center">
-            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleCompare('${item.sku}')" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
-          </td>
-
-          <!-- 2. SKU + Copiar -->
-          <td class="p-3 text-center">
-            <div class="font-mono text-slate-600 flex items-center justify-center gap-1">
-              <span>${item.sku}</span>
-              <button onclick="copyText('${item.sku}')" class="p-0.5 hover:text-blue-600 border rounded bg-white shadow-xs" title="Copiar SKU">
-                <i data-lucide="copy" class="w-3 h-3"></i>
-              </button>
-            </div>
-          </td>
-
-          <!-- 3. Descripción detallada con Marca y Memoria -->
-          <td class="p-3">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 tracking-wider">${item.brand}</span>
-                ${item.memory !== 'N/A' ? `<span class="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded">${item.memory}</span>` : ''}
-              </div>
-              <div class="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
-                <span>${item.desc}</span>
-                <button onclick="copyText('${item.desc}')" class="p-0.5 hover:text-blue-600 border rounded bg-white shadow-xs shrink-0" title="Copiar Nombre">
-                  <i data-lucide="copy" class="w-3 h-3"></i>
-                </button>
-              </div>
-            </div>
-          </td>
-
-          <!-- 4. Cantidad (Stock) -->
-          <td class="p-3 text-center font-extrabold text-slate-900 text-sm">
-            ${item.disponible}
-          </td>
-
-          <!-- 5. Estado Stock -->
-          <td class="p-3 text-center">
-            ${isAvailable ? 
-              `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-200">Disponible</span>` : 
-              `<span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full border border-red-200">Sin Stock</span>`}
-          </td>
-
-          <!-- 6. Enlace Entel -->
-          <td class="p-3 text-center">
-            <a href="${entelUrl}" target="_blank" class="inline-flex items-center space-x-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] px-3 py-1.5 rounded-lg shadow-sm transition-all">
-              <span>Buscar en Entel</span>
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            </a>
-          </td>
-
-          <!-- 7. Ficha Técnica Individual -->
-          <td class="p-3 text-center">
-            <button onclick="openSingleSpecs('${item.sku}')" class="inline-flex items-center space-x-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-[11px] px-2.5 py-1.5 rounded-lg transition-all" title="Ver características">
-              <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
-              <span>Ver Ficha</span>
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById('mTotal').innerText = inventory.length;
-      document.getElementById('mAvailable').innerText = inStock;
-      document.getElementById('mOutOfStock').innerText = outStock;
-      document.getElementById('recordCount').innerText = `Mostrando ${filtered.length} de ${inventory.length} registros`;
-      lucide.createIcons();
-    }
-
-    function copyText(val) {
-      navigator.clipboard.writeText(val);
-    }
-
-    function handleFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (evt) => parseHTMLContent(evt.target.result);
-      reader.readAsText(file);
-    }
-  </script>
-</body>
-</html>
